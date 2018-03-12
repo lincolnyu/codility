@@ -51,32 +51,16 @@ namespace codility.Lessons.Lesson4
         public object Run(params object[] args)
             => Solve((int[])args[0]);
 
-        public class Tester : BaseTester
+        public class Tester : BaseSelfTester<MissingInteger>
         {
-            private MissingInteger _mi = new MissingInteger();
-
-            public IEnumerable<string> TestAndShowResults()
-            {
-                return TestAndShowResults(_mi);
-            }
-
-            private TestSet CreateSet(int[] input, int expected)
-            {
-                return new TestSet
-                {
-                    Input = new object[] { input },
-                    ExpectedOutput = expected
-                };
-            }
-
             public override IEnumerable<TestSet> GetTestSets()
             {
-                yield return CreateSet(new int[] { 1, 3, 6, 4, 1, 2}, 5);
-                yield return CreateSet(new int[] { 1, 2, 3 }, 4);
-                yield return CreateSet(new int[] { -1, -3 }, 1);
+                yield return CreateSingleInputSet(new int[] { 1, 3, 6, 4, 1, 2}, 5);
+                yield return CreateSingleInputSet(new int[] { 1, 2, 3 }, 4);
+                yield return CreateSingleInputSet(new int[] { -1, -3 }, 1);
 
-                yield return CreateSet(new int[] { -1, -2, 0, 2, 4}, 1);
-                yield return CreateSet(new int[] { 2,1,4,5,3 }, 6);
+                yield return CreateSingleInputSet(new int[] { -1, -2, 0, 2, 4}, 1);
+                yield return CreateSingleInputSet(new int[] { 2,1,4,5,3 }, 6);
             }
         }
     }

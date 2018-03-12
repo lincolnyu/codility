@@ -56,5 +56,14 @@ namespace codility.TestFramework
                 }
             }
         }
+
+        protected TestSet CreateSingleInputSet<TInput, TOutput>(TInput input, TOutput expected)
+        {
+            return new TestSet
+            {
+                Input = new object[] { input },
+                ExpectedOutput = expected
+            };
+        }
     }
 }
