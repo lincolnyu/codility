@@ -1,4 +1,5 @@
-﻿using System;
+﻿using codility.Lessons.Lesson4;
+using System;
 
 namespace codility
 {
@@ -6,7 +7,12 @@ namespace codility
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var tester = new MissingInteger.Tester();
+            var rs = tester.TestAndShowResults();
+            foreach (var r in rs)
+            {
+                Console.WriteLine(r);
+            }
         }
     }
 }
