@@ -1,5 +1,6 @@
 ﻿using codility.Lessons.Lesson1;
 using codility.Lessons.Lesson2;
+using codility.Lessons.Lesson3;
 using codility.Lessons.Lesson4;
 using codility.TestFramework;
 using System;
@@ -23,7 +24,10 @@ namespace codility
         {
             //Test<MissingInteger.Tester>();
             //Test<BinaryGap.Tester>();
-            Test<CyclicRotation.Tester>();
+            //Test<CyclicRotation.Tester>();
+            //Test<OddOccurrencesInArray.Tester>();
+            //Test<TapeEquilibrium.Tester>();
+            Test<PermMissingElem.Tester>();
         }
     }
 }

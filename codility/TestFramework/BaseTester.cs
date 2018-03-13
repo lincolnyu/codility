@@ -80,5 +80,15 @@ namespace codility.TestFramework
                 ExpectedOutput = expected
             };
         }
+
+        protected TestSet Create3InputSet<TInput1, TInput2, TInput3, TOutput>
+            (TInput1 input1, TInput2 input2, TInput3 input3, TOutput expected)
+        {
+            return new TestSet
+            {
+                Input = new object[] { input1, input2, input3 },
+                ExpectedOutput = expected
+            };
+        }
     }
 }
