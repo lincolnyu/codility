@@ -1,6 +1,5 @@
 ﻿using codility.TestFramework;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace codility.Lessons.Lesson3
 {

@@ -27,7 +27,9 @@ namespace codility
             //Test<CyclicRotation.Tester>();
             //Test<OddOccurrencesInArray.Tester>();
             //Test<TapeEquilibrium.Tester>();
-            Test<PermMissingElem.Tester>();
+            //Test<PermMissingElem.Tester>();
+            //Test<FrogRiverOne.Tester>();
+            Test<PermCheck.Tester>();
         }
     }
 }
