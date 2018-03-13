@@ -1,4 +1,5 @@
 ﻿using codility.Lessons.Lesson1;
+using codility.Lessons.Lesson2;
 using codility.Lessons.Lesson4;
 using codility.TestFramework;
 using System;
@@ -21,7 +22,8 @@ namespace codility
         static void Main(string[] args)
         {
             //Test<MissingInteger.Tester>();
-            Test<BinaryGap.Tester>();
+            //Test<BinaryGap.Tester>();
+            Test<CyclicRotation.Tester>();
         }
     }
 }

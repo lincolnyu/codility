@@ -21,6 +21,12 @@ namespace codility.TestFramework
 
         public abstract IEnumerable<TestSet> GetTestSets();
 
+        public virtual bool ResultsEqual(object a, object b)
+            => a.Equals(b);
+
+        public virtual string ResultToString(object r)
+            => r.ToString();
+
         public virtual IEnumerable<TestResult> Test(ITestee testee)
         {
             var testsets = GetTestSets();
@@ -33,7 +39,7 @@ namespace codility.TestFramework
                 {
                     TestSet = testset,
                     Actual = actual,
-                    Passed = actual.Equals(testset.ExpectedOutput),
+                    Passed = ResultsEqual(testset.ExpectedOutput, actual),
                     Elapse = end - start
                 };
                 yield return tr;
@@ -62,6 +68,15 @@ namespace codility.TestFramework
             return new TestSet
             {
                 Input = new object[] { input },
+                ExpectedOutput = expected
+            };
+        }
+
+        protected TestSet Create2InputSet<TInput1, TInput2, TOutput>(TInput1 input1, TInput2 input2, TOutput expected)
+        {
+            return new TestSet
+            {
+                Input = new object[] { input1, input2 },
                 ExpectedOutput = expected
             };
         }
