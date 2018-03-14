@@ -29,7 +29,8 @@ namespace codility
             //Test<TapeEquilibrium.Tester>();
             //Test<PermMissingElem.Tester>();
             //Test<FrogRiverOne.Tester>();
-            Test<PermCheck.Tester>();
+            //Test<PermCheck.Tester>();
+            Test<MaxCounters.Tester>();
         }
     }
 }

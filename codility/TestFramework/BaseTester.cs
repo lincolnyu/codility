@@ -49,7 +49,7 @@ namespace codility.TestFramework
         public virtual IEnumerable<string> TestAndShowResults(ITestee testee)
         {
             var trs = Test(testee);
-            var i = 0;
+            var i = 1;
             foreach (var tr in trs)
             {
                 if (tr.Passed)

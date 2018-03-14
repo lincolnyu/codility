@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Text;
+using codility.Helpers;
 using codility.TestFramework;
 
 namespace codility.Lessons.Lesson2
@@ -58,31 +58,10 @@ namespace codility.Lessons.Lesson2
             }
 
             public override bool ResultsEqual(object a, object b)
-            {
-                var aa = (int[])a;
-                var ab = (int[])b;
-                if (aa.Length != ab.Length) return false;
-                for (var i = 0; i < aa.Length; i++)
-                {
-                    if (aa[i] != ab[i]) return false;
-                }
-                return true;
-            }
+                => ResultsHelper.ResultsEqual((int[])a, (int[])b);
 
             public override string ResultToString(object r)
-            {
-                var a = (int[])r;
-                var sb = new StringBuilder();
-                sb.Append("{");
-                foreach (var v in a)
-                {
-                    sb.Append(v);
-                    sb.Append(',');
-                }
-                sb.Remove(sb.Length - 1, 1);
-                sb.Append('}');
-                return sb.ToString();
-            }
+                => ResultsHelper.ResultToString((int[])r);
         }
     }
 }
