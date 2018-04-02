@@ -2,6 +2,7 @@
 using codility.Lessons.Lesson2;
 using codility.Lessons.Lesson3;
 using codility.Lessons.Lesson4;
+using codility.Lessons.Lesson5;
 using codility.TestFramework;
 using System;
 
@@ -30,7 +31,10 @@ namespace codility
             //Test<PermMissingElem.Tester>();
             //Test<FrogRiverOne.Tester>();
             //Test<PermCheck.Tester>();
-            Test<MaxCounters.Tester>();
+            //Test<MaxCounters.Tester>();
+            //Test<CountDiv.Tester>();
+            //Test<PassingCars.Tester>();
+            Test<GenomicRangeQuery.Tester>();
         }
     }
 }
