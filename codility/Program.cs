@@ -34,7 +34,8 @@ namespace codility
             //Test<MaxCounters.Tester>();
             //Test<CountDiv.Tester>();
             //Test<PassingCars.Tester>();
-            Test<GenomicRangeQuery.Tester>();
+            //Test<GenomicRangeQuery.Tester>();
+            Test<MinAvgTwoSlice.Tester>();
         }
     }
 }
