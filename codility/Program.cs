@@ -3,6 +3,7 @@ using codility.Lessons.Lesson2;
 using codility.Lessons.Lesson3;
 using codility.Lessons.Lesson4;
 using codility.Lessons.Lesson5;
+using codility.Lessons.Lesson6;
 using codility.TestFramework;
 using System;
 
@@ -35,7 +36,10 @@ namespace codility
             //Test<CountDiv.Tester>();
             //Test<PassingCars.Tester>();
             //Test<GenomicRangeQuery.Tester>();
-            Test<MinAvgTwoSlice.Tester>();
+            //Test<MinAvgTwoSlice.Tester>();
+            //Test<Triangle.Tester>();
+            //Test<Distinct.Tester>();
+            Test<MaxProductOfThree.Tester>();
         }
     }
 }
