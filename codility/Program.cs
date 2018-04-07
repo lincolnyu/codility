@@ -4,6 +4,7 @@ using codility.Lessons.Lesson3;
 using codility.Lessons.Lesson4;
 using codility.Lessons.Lesson5;
 using codility.Lessons.Lesson6;
+using codility.Lessons.Lesson7;
 using codility.TestFramework;
 using System;
 
@@ -40,7 +41,10 @@ namespace codility
             //Test<Triangle.Tester>();
             //Test<Distinct.Tester>();
             //Test<MaxProductOfThree.Tester>();
-            Test<NumberOfDiscIntersections.Tester>();
+            //Test<NumberOfDiscIntersections.Tester>();
+            //Test<StoneWall.Tester>();
+            //Test<Brackets.Tester>();
+            Test<Nesting.Tester>();
         }
     }
 }
