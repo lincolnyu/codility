@@ -39,7 +39,8 @@ namespace codility
             //Test<MinAvgTwoSlice.Tester>();
             //Test<Triangle.Tester>();
             //Test<Distinct.Tester>();
-            Test<MaxProductOfThree.Tester>();
+            //Test<MaxProductOfThree.Tester>();
+            Test<NumberOfDiscIntersections.Tester>();
         }
     }
 }
