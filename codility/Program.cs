@@ -6,6 +6,7 @@ using codility.Lessons.Lesson5;
 using codility.Lessons.Lesson6;
 using codility.Lessons.Lesson7;
 using codility.Lessons.Lesson8;
+using codility.Lessons.Lesson9;
 using codility.TestFramework;
 using System;
 
@@ -48,7 +49,10 @@ namespace codility
             //Test<Nesting.Tester>();
             //Test<Nesting.Tester>();
             //Test<Dominator.Tester>();
-            Test<EquiLeader.Tester>();
+            //Test<EquiLeader.Tester>();
+            //Test<MaxDoubleSliceSum.Tester>();
+            //Test<MaxProfit.Tester>();
+            Test<MaxSliceSum.Tester>();
         }
     }
 }
