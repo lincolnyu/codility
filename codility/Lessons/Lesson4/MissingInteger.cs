@@ -58,7 +58,6 @@ namespace codility.Lessons.Lesson4
                 yield return CreateSingleInputSet(new int[] { 1, 3, 6, 4, 1, 2}, 5);
                 yield return CreateSingleInputSet(new int[] { 1, 2, 3 }, 4);
                 yield return CreateSingleInputSet(new int[] { -1, -3 }, 1);
-
                 yield return CreateSingleInputSet(new int[] { -1, -2, 0, 2, 4}, 1);
                 yield return CreateSingleInputSet(new int[] { 2,1,4,5,3 }, 6);
             }

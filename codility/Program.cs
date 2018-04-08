@@ -1,4 +1,5 @@
 ﻿using codility.Lessons.Lesson1;
+using codility.Lessons.Lesson10;
 using codility.Lessons.Lesson2;
 using codility.Lessons.Lesson3;
 using codility.Lessons.Lesson4;
@@ -52,7 +53,11 @@ namespace codility
             //Test<EquiLeader.Tester>();
             //Test<MaxDoubleSliceSum.Tester>();
             //Test<MaxProfit.Tester>();
-            Test<MaxSliceSum.Tester>();
+            //Test<MaxSliceSum.Tester>();
+            //Test<CountDiv.Tester>();
+            //Test<MinPerimeterRectangle.Tester>();
+            //Test<Flags.Tester>();
+            Test<Peaks.Tester>();
         }
     }
 }
