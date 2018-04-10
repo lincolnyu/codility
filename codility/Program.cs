@@ -1,5 +1,6 @@
 ﻿using codility.Lessons.Lesson1;
 using codility.Lessons.Lesson10;
+using codility.Lessons.Lesson11;
 using codility.Lessons.Lesson2;
 using codility.Lessons.Lesson3;
 using codility.Lessons.Lesson4;
@@ -57,7 +58,9 @@ namespace codility
             //Test<CountDiv.Tester>();
             //Test<MinPerimeterRectangle.Tester>();
             //Test<Flags.Tester>();
-            Test<Peaks.Tester>();
+            //Test<Peaks.Tester>();
+            //Test<CountSemiprimes.Tester>();
+            Test<CountNonDivisible.Tester>();
         }
     }
 }
