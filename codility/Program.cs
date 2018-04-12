@@ -62,7 +62,8 @@ namespace codility
             //Test<Peaks.Tester>();
             //Test<CountSemiprimes.Tester>();
             //Test<CountNonDivisible.Tester>();
-            Test<ChocolatesByNumbers.Tester>();
+            //Test<ChocolatesByNumbers.Tester>();
+            Test<CommonPrimeDivisors.Tester>();
         }
     }
 }
