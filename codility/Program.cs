@@ -66,6 +66,11 @@ namespace codility
             //Test<ChocolatesByNumbers.Tester>();
             //Test<CommonPrimeDivisors.Tester>();
             Test<FibFrog.Tester>();
+
+            var a = new int[100000];
+            for (var i = 0; i < 100000; i++) a[i] = 1;
+            var res = new FibFrog().Solve(a);
+            Console.WriteLine($"res = {res}");
         }
     }
 }
