@@ -7,6 +7,61 @@ namespace codility.Lessons.Lesson13
 {
     class FibFrog : ITestee
     {
+        IEnumerable<int> GenFibs(int max)
+            => GenFibs().TakeWhile(x => x <= max);
+
+        IEnumerable<int> GenFibs()
+        {
+            var a = 1;
+            var b = 2;
+            yield return a;
+            yield return b;
+            for (; ; )
+            {
+                var c = a + b;
+                yield return c;
+                a = b;
+                b = c;
+            }
+        }
+
+        int FindFib(int n, int[] fibs)
+            => FindFib(n, fibs, 0, fibs.Length);
+        int FindFib(int n, int[] fibs, int start, int length)
+        {
+            if (length == 1) return start;
+            var midd = length / 2;
+            var mid = start + midd;
+            // [start, mid), [mid, start+length)
+            if (fibs[mid] <= n) return FindFib(n, fibs, mid, length - midd);
+            else return FindFib(n, fibs, start, midd);
+        }
+
+        public int Solve(int[] A)
+        {
+            var n = A.Length;
+            var fibs = GenFibs(n + 1).ToArray();
+            return SolveSteps(fibs, A, -1);
+        }
+
+        private int SolveSteps(int[] fibs, int[] A, int start)
+        {
+            var i = FindFib(A.Length - start, fibs);
+            for (; i >= 0; i--)
+            {
+                var fib = fibs[i];
+                var newStart = start + fib;
+                if (newStart == A.Length) return 1;
+                if (A[newStart] == 1)
+                {
+                    var steps = SolveSteps(fibs, A, newStart);
+                    if (steps > 0) return steps + 1;
+                }
+            }
+            return -1;
+        }
+
+
         public int Solve2(int[] A)
         {
             var n = A.Length;
@@ -50,7 +105,7 @@ namespace codility.Lessons.Lesson13
             }
         }
 
-        public int Solve(int[] A)
+        public int Solve3(int[] A)
         {
             var n = A.Length;
             if (n == 0) return 1;
@@ -87,16 +142,11 @@ namespace codility.Lessons.Lesson13
             return new Tuple<int,bool>(min + 1, ini==i && chain);
         }
 
-        int FindFib(int n, int[] fibs)
-            => FindFib(n, fibs, 0, fibs.Length);
-        int FindFib(int n, int[] fibs, int start, int length)
+        public void TestFindFib()
         {
-            if (length == 1) return start;
-            var midd = length / 2;
-            var mid = start + midd;
-            // [start, mid), [mid, start+length)
-            if (fibs[mid] <= n) return FindFib(n, fibs, mid, length - midd);
-            else return FindFib(n, fibs, start, midd);
+            var fibs = GenFibs(56).ToArray();
+            var i = FindFib(56, fibs);
+            Console.WriteLine($"{fibs[i]}");
         }
 
         public int Solve1(int[] A)
@@ -147,24 +197,6 @@ namespace codility.Lessons.Lesson13
                 res[fib] = true;
             }
             return res;
-        }
-
-        IEnumerable<int> GenFibs(int max)
-            => GenFibs().TakeWhile(x => x <= max);
-
-        IEnumerable<int> GenFibs()
-        {
-            var a = 1;
-            var b = 2;
-            yield return a;
-            yield return b;
-            for (; ; )
-            {
-                var c = a + b;
-                yield return c;
-                a = b;
-                b = c;
-            }
         }
 
         public object Run(params object[] args)

@@ -65,12 +65,15 @@ namespace codility
             //Test<CountNonDivisible.Tester>();
             //Test<ChocolatesByNumbers.Tester>();
             //Test<CommonPrimeDivisors.Tester>();
+#if false
+            new FibFrog().TestFindFib();
+#else               
             Test<FibFrog.Tester>();
-
             var a = new int[100000];
             for (var i = 0; i < 100000; i++) a[i] = 1;
             var res = new FibFrog().Solve(a);
             Console.WriteLine($"res = {res}");
+#endif
         }
     }
 }
