@@ -12,6 +12,8 @@ namespace codility.TestFramework
     {
         private ITestee _testee = new T();
 
+        public ITestee Testee => _testee;
+
         public IEnumerable<string> TestAndShowResults() 
             => TestAndShowResults(_testee);
     }

@@ -41,162 +41,39 @@ namespace codility.Lessons.Lesson13
         {
             var n = A.Length;
             var fibs = GenFibs(n + 1).ToArray();
-            return SolveSteps(fibs, A, -1);
+            return SolveRange1(fibs, A, -1, A.Length, int.MaxValue);
         }
-
-        private int SolveSteps(int[] fibs, int[] A, int start)
-        {
-            var i = FindFib(A.Length - start, fibs);
-            for (; i >= 0; i--)
-            {
-                var fib = fibs[i];
-                var newStart = start + fib;
-                if (newStart == A.Length) return 1;
-                if (A[newStart] == 1)
-                {
-                    var steps = SolveSteps(fibs, A, newStart);
-                    if (steps > 0) return steps + 1;
-                }
-            }
-            return -1;
-        }
-
-
-        public int Solve2(int[] A)
-        {
-            var n = A.Length;
-            var fibs = GenFibs(n + 1).ToArray();
-            var stack = new Stack<int>();
-            var dist = n + 1;
-
-            var c = 0;
-            var p = -1;
-            var i = FindFib(dist, fibs);
-            while (true)
-            {
-                for (; i >= 0; i--)
-                {
-                    var fib = fibs[i];
-                    if (p + fib == A.Length) return c + 1;
-                    if (A[p + fib] == 1)
-                    {
-                        stack.Push(i);
-                        c++;
-                        p += fib;
-                        dist -= fib;
-                        if (dist == 0) return c;
-                        break;
-                    }
-                }
-                if (i < 0)
-                {
-                    if (stack.Count == 0) return -1;
-                    i = stack.Pop();
-                    var f = fibs[i];
-                    p -= f;
-                    dist += f;
-                    i--;
-                    c--;
-                }
-                else
-                {
-                    i = FindFib(dist, fibs);
-                }
-            }
-        }
-
-        public int Solve3(int[] A)
-        {
-            var n = A.Length;
-            if (n == 0) return 1;
-            var fibs = GenFibs(n + 1).ToArray();
-            return GetJumps3(fibs, A, -1, A.Length).Item1;
-        }
-        public Tuple<int, bool> GetJumps3(int[] fibs, int[] A, int start, int end)
-        {
-            var n = end - start;
-            var min = int.MaxValue;
-            int i;
-            var ini = FindFib(n, fibs);
-            var chain = false;
-            for (i = ini; i >= 0; i--)
-            {
-                var fib = fibs[i];
-                if (start + fib == end)
-                {
-                    return new Tuple<int, bool>(1, true);
-                }
-                if (A[start + fib] == 1)
-                {
-                    var t = GetJumps3(fibs, A, start + fib, end);
-                    var j = t.Item1;
-                    if (j > 0 && j < min) min = j;
-                    if (t.Item2 || j == 1)
-                    {
-                        chain = t.Item2;
-                        break;
-                    }
-                }
-            }
-            if (min == int.MaxValue) return new Tuple<int, bool>(-1, false);
-            return new Tuple<int,bool>(min + 1, ini==i && chain);
-        }
-
-        public void TestFindFib()
-        {
-            var fibs = GenFibs(56).ToArray();
-            var i = FindFib(56, fibs);
-            Console.WriteLine($"{fibs[i]}");
-        }
-
+        
         public int Solve1(int[] A)
         {
             var n = A.Length;
-            var steps = Steps(A).ToArray();
-            var fibs = MarkFibs(n+1);
-            return GetJumps(steps, fibs, 0, steps.Length-1);
+            var fibs = GenFibs(n + 1).ToArray();
+            return SolveRange1(fibs, A, -1, A.Length, int.MaxValue);
         }
 
-        int GetJumps(int[] steps, bool[] fibs, int start, int end)
+        int SolveRange1(int[] fibs, int[] A, int start, int end, int quit)
         {
-            var d = steps[end] - steps[start];
-            if (fibs[d]) return 1;
-            var min = int.MaxValue;
-            for (var split = start+1; split < end; split++)
+            var min = quit - 1;
+            if (min < 1) return -1;
+            var i = FindFib(end - start, fibs);
+            var fib = fibs[i];
+            var newStart = start + fib;
+            if (newStart == end) return 1;
+            for (; i >= 0; i--)
             {
-                var s = steps[end] - steps[split];
-                if (!fibs[s]) continue;
-                var j = GetJumps(steps, fibs, start, split);
-                if (j == -1) continue;
-                if (j < min)
+                fib = fibs[i];
+                newStart = start + fib;
+                if (A[newStart] == 1)
                 {
-                    min = j;
-                    if (j == 1) break;
+                    var steps = SolveRange1(fibs, A, newStart, end, min);
+                    if (steps > 0 && steps < min)
+                    {
+                        min = steps;
+                        if (min == 1) break;
+                    }
                 }
-                //if (split == start + 1) break;
             }
-            return min == int.MaxValue ? -1 : min + 1;
-        }
-
-        IEnumerable<int> Steps(int[] A)
-        {
-            yield return 0;
-            for (var i = 0; i < A.Length; i++)
-            {
-                if (A[i] != 0) yield return i + 1;
-            }
-            yield return A.Length + 1;
-        }
-
-        bool[] MarkFibs(int max)
-        {
-            var res = new bool[max + 1];
-            var fibs = GenFibs(max);
-            foreach (var fib in fibs)
-            {
-                res[fib] = true;
-            }
-            return res;
+            return min + 1 < quit ? min + 1 : -1;
         }
 
         public object Run(params object[] args)
@@ -207,7 +84,76 @@ namespace codility.Lessons.Lesson13
             public override IEnumerable<TestSet> GetTestSets()
             {
                 yield return CreateSingleInputSet(new[] { 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0 }, 3);
-                yield return CreateSingleInputSet(new int[] { }, 1);
+                var lvs = new[] { 55, 34, 89, 144, 145, 148 /*182*/};
+                {
+                    var i = new int[181];
+                    foreach (var lf in lvs) i[lf-1] = 1;
+                    yield return CreateSingleInputSet(i, 4);
+                }
+
+                var ff = new FibFrog();
+                {
+                    const int count = 100;
+                    const int maxLen = 1000;
+                    const int dyn = 20;
+                    var seed = 123;
+                    var rand = new Random(seed);
+                    for (var c = 0; c < count;)
+                    {
+                        var len = rand.Next(1, maxLen);
+                        var a = new int[len];
+                        var p = -1;
+                        for (; ; )
+                        {
+                            var leap = rand.Next(1, dyn);
+                            p += leap;
+                            if (p >= a.Length)
+                            {
+                                break;
+                            }
+                            a[p] = 1;
+                        }
+                        var expected = ff.Solve1(a);
+                        if (expected != -1)
+                        {
+                            yield return CreateSingleInputSet(a, expected);
+                            c++;
+                        }
+                    }
+                }
+
+                {
+                    // 1 2 3 5 8 13 ...
+                    //     4 6 9
+                    var r = ff.GenFibs(40).ToArray();
+                    var n = r[r.Length - 1];
+                    var a = new int[n];
+                    for (var i = 2; i < r.Length-1; i++)
+                    {
+                        a[r[i]-1] = 1;
+                    }
+                    var expected = ff.Solve1(a);
+                    yield return CreateSingleInputSet(a, expected);
+                }
+
+                {
+                    var leaves = new[] { 2, 91, 146, 148 };
+                    var a = CreateTest(leaves);
+                    var expected = ff.Solve1(a);
+                    yield return CreateSingleInputSet(a, expected);
+                }
+            }
+
+            int[] CreateTest(int[] leaps)
+            {
+                var last = leaps[leaps.Length - 1];
+                var n = last - 1;
+                var a = new int[n];
+                for (var i = 0; i < leaps.Length-1; i++)
+                {
+                    a[leaps[i]-1] = 1;
+                }
+                return a;
             }
         }
     }

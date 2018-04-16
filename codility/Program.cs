@@ -29,6 +29,24 @@ namespace codility
             }
         }
 
+        static void Debug<TTester, T>() where
+            TTester : BaseSelfTester<T>, new()
+            where T : ITestee, new()
+        {
+            var tester = new TTester();
+            var rs = tester.Test(tester.Testee);
+            var c = 0;
+            foreach (var r in rs)
+            {
+                if (!r.Passed)
+                {
+                    var ar = (int[])r.TestSet.Input[0];
+                    var l = ar.Length;
+                    Console.WriteLine($"Test {++c} failed, length {l}, expected{r.TestSet.ExpectedOutput}, actual {r.Actual}");
+                }
+            }
+        }
+
         static void Main(string[] args)
         {
             //Test<MissingInteger.Tester>();
@@ -66,13 +84,27 @@ namespace codility
             //Test<ChocolatesByNumbers.Tester>();
             //Test<CommonPrimeDivisors.Tester>();
 #if false
-            new FibFrog().TestFindFib();
-#else               
-            Test<FibFrog.Tester>();
-            var a = new int[100000];
-            for (var i = 0; i < 100000; i++) a[i] = 1;
+            //new FibFrog().TestFindFib();
+            new FibFrog.Tester().TestFindFibs();
+
+            var lvs = new[] { 1, 9, 15, 17, 22, 34, 40, 47, 65, 77, 91, 96 };
+                var a = new int[98];
+                foreach (var lv in lvs) a[lv] = 1;
+                var ff = new FibFrog();
+                var i = ff.Solve(a);
+                Console.WriteLine($"i = {i}");
+                var i1 = ff.Solve1(a);
+                Console.WriteLine($"i1 = {i1}");
+#else
+        //    Test<FibFrog.Tester>();
+            //Debug<FibFrog.Tester, FibFrog>();
+#if true
+            const int len = 100000;
+            var a = new int[len];
+            for (var i = 0; i < len; i++) a[i] = i%3==0? 1 : 0;
             var res = new FibFrog().Solve(a);
             Console.WriteLine($"res = {res}");
+#endif
 #endif
         }
     }
