@@ -27,6 +27,7 @@ namespace codility.Lessons.Lesson13
 
         int FindFib(int n, int[] fibs)
             => FindFib(n, fibs, 0, fibs.Length);
+
         int FindFib(int n, int[] fibs, int start, int length)
         {
             if (length == 1) return start;
@@ -37,13 +38,100 @@ namespace codility.Lessons.Lesson13
             else return FindFib(n, fibs, start, midd);
         }
 
-        public int Solve(int[] A)
+        private int[] GenFibTable(int[] fibs, int N)
+        {
+            var res = new int[N+1];
+            for (var i = 1; i < fibs.Length; i++)
+            {
+                var lastFib = fibs[i - 1];
+                var fib = fibs[i];
+                for (var j = lastFib; j < fib; j++)
+                {
+                    res[j] = i-1;
+                }
+            }
+            for (var j = fibs[fibs.Length-1]; j <= N; j++)
+            {
+                res[j] = fibs.Length - 1;
+            }
+            return res;
+        }
+
+        public int Solve(int[] A) => Solve3(A);
+        
+        public int Solve3(int[] A)
+        {
+            var n = A.Length;
+            var dp = new int[n];
+            var fibs = GenFibs(n + 1).ToArray();
+            int r = -1;
+            for (var i = A.Length-1; i >= -1; i--)
+            {
+                var a = i < 0 || A[i] == 1;
+                if (a)
+                {
+                    var min = int.MaxValue;
+                    foreach (var fib in fibs)
+                    {
+                        if (i + fib > A.Length) break;
+                        if (i + fib == A.Length)
+                        {
+                            min = 0;
+                            break;
+                        }
+                        else if (A[i + fib] == 1)
+                        {
+                            var d = dp[i + fib];
+                            if (d > 0 && d < min) min = d;
+                        }
+                    }
+                    r = min != int.MaxValue ? min + 1 : -1;
+                    if (i < 0) break;
+                    dp[i] = r;
+                }
+            }
+            return r;
+        }
+
+        public int Solve2(int[] A)
         {
             var n = A.Length;
             var fibs = GenFibs(n + 1).ToArray();
-            return SolveRange1(fibs, A, -1, A.Length, int.MaxValue);
+            var fibTable = GenFibTable(fibs, n+1);
+            var dp = new int[n];
+            return SolveRange2(fibs, fibTable, A, dp, -1, int.MaxValue);
         }
-        
+
+        int SolveRange2(int[] fibs, int[] fibTable, int[] A, int[] dp, int start, int quit)
+        {
+            var min = quit - 1;
+            if (min < 1) return -1;
+            var i = fibTable[A.Length - start];
+            var fib = fibs[i];
+            var newStart = start + fib;
+            if (newStart == A.Length) return 1;
+            for (; i >= 0; i--)
+            {
+                fib = fibs[i];
+                newStart = start + fib;
+                if (A[newStart] == 1)
+                {
+                    var steps = dp[newStart];
+                    if (steps == 0)
+                    {
+                        steps = SolveRange2(fibs, fibTable, A, dp, newStart, min);
+                        dp[newStart] = steps;
+                    }
+                    if (steps > 0 && steps < min)
+                    {
+                        min = steps;
+                        if (min == 1) break;
+                    }
+                }
+            }
+            return min + 1 < quit ? min + 1 : -1;
+        }
+
         public int Solve1(int[] A)
         {
             var n = A.Length;
@@ -75,7 +163,7 @@ namespace codility.Lessons.Lesson13
             }
             return min + 1 < quit ? min + 1 : -1;
         }
-
+        
         public object Run(params object[] args)
             => Solve((int[])args[0]);
 
@@ -141,6 +229,13 @@ namespace codility.Lessons.Lesson13
                     var a = CreateTest(leaves);
                     var expected = ff.Solve1(a);
                     yield return CreateSingleInputSet(a, expected);
+                }
+
+                {
+                    const int len = 100000;
+                    var a = new int[len];
+                    for (var i = 0; i < len; i++) a[i] = i % 3 == 0 ? 1 : 0;
+                    yield return CreateSingleInputSet(a, 8);
                 }
             }
 

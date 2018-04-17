@@ -83,29 +83,7 @@ namespace codility
             //Test<CountNonDivisible.Tester>();
             //Test<ChocolatesByNumbers.Tester>();
             //Test<CommonPrimeDivisors.Tester>();
-#if false
-            //new FibFrog().TestFindFib();
-            new FibFrog.Tester().TestFindFibs();
-
-            var lvs = new[] { 1, 9, 15, 17, 22, 34, 40, 47, 65, 77, 91, 96 };
-                var a = new int[98];
-                foreach (var lv in lvs) a[lv] = 1;
-                var ff = new FibFrog();
-                var i = ff.Solve(a);
-                Console.WriteLine($"i = {i}");
-                var i1 = ff.Solve1(a);
-                Console.WriteLine($"i1 = {i1}");
-#else
-        //    Test<FibFrog.Tester>();
-            //Debug<FibFrog.Tester, FibFrog>();
-#if true
-            const int len = 100000;
-            var a = new int[len];
-            for (var i = 0; i < len; i++) a[i] = i%3==0? 1 : 0;
-            var res = new FibFrog().Solve(a);
-            Console.WriteLine($"res = {res}");
-#endif
-#endif
+            Test<FibFrog.Tester>();
         }
     }
 }
