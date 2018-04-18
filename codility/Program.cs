@@ -83,7 +83,8 @@ namespace codility
             //Test<CountNonDivisible.Tester>();
             //Test<ChocolatesByNumbers.Tester>();
             //Test<CommonPrimeDivisors.Tester>();
-            Test<FibFrog.Tester>();
+            //Test<FibFrog.Tester>();
+            Test<Ladder.Tester>();
         }
     }
 }
