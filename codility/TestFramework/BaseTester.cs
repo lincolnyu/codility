@@ -59,6 +59,7 @@ namespace codility.TestFramework
                 else
                 {
                     yield return $"Test {i++} failed, taking {tr.Elapse.TotalSeconds} second(s), '{ResultToString(tr.TestSet.ExpectedOutput)}' expected but '{ResultToString(tr.Actual)}' returned.";
+                    yield break;
                 }
             }
         }
