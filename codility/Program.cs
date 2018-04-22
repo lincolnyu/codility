@@ -86,7 +86,8 @@ namespace codility
             //Test<CommonPrimeDivisors.Tester>();
             //Test<FibFrog.Tester>();
             //Test<Ladder.Tester>();
-            Test<MinMaxDivision.Tester>();
+            //Test<MinMaxDivision.Tester>();
+            Test<NailingPlanks.Tester>();
         }
     }
 }
