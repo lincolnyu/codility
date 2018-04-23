@@ -91,7 +91,8 @@ namespace codility
             //Test<NailingPlanks.Tester>();
             //Test<CountDistinctSlices.Tester>();
             //Test<CountTriangles.Tester>();
-            Test<AbsDistinct.Tester>();
+            //Test<AbsDistinct.Tester>();
+            Test<MinAbsSumOfTwo.Tester>();
         }
     }
 }
