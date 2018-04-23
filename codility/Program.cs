@@ -4,6 +4,7 @@ using codility.Lessons.Lesson11;
 using codility.Lessons.Lesson12;
 using codility.Lessons.Lesson13;
 using codility.Lessons.Lesson14;
+using codility.Lessons.Lesson15;
 using codility.Lessons.Lesson2;
 using codility.Lessons.Lesson3;
 using codility.Lessons.Lesson4;
@@ -87,7 +88,10 @@ namespace codility
             //Test<FibFrog.Tester>();
             //Test<Ladder.Tester>();
             //Test<MinMaxDivision.Tester>();
-            Test<NailingPlanks.Tester>();
+            //Test<NailingPlanks.Tester>();
+            //Test<CountDistinctSlices.Tester>();
+            //Test<CountTriangles.Tester>();
+            Test<AbsDistinct.Tester>();
         }
     }
 }
