@@ -5,6 +5,7 @@ using codility.Lessons.Lesson12;
 using codility.Lessons.Lesson13;
 using codility.Lessons.Lesson14;
 using codility.Lessons.Lesson15;
+using codility.Lessons.Lesson16;
 using codility.Lessons.Lesson2;
 using codility.Lessons.Lesson3;
 using codility.Lessons.Lesson4;
@@ -92,7 +93,8 @@ namespace codility
             //Test<CountDistinctSlices.Tester>();
             //Test<CountTriangles.Tester>();
             //Test<AbsDistinct.Tester>();
-            Test<MinAbsSumOfTwo.Tester>();
+            //Test<MinAbsSumOfTwo.Tester>();
+            Test<TieRopes.Tester>();
         }
     }
 }
