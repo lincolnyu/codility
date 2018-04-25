@@ -97,7 +97,8 @@ namespace codility
             //Test<MinAbsSumOfTwo.Tester>();
             //Test<TieRopes.Tester>();
             //Test<MaxNonoverlappingSegments.Tester>();
-            Test<NumberSolitaire.Tester>();
+            //Test<NumberSolitaire.Tester>();
+            Test<MinAbsSum.Tester>();
         }
     }
 }
