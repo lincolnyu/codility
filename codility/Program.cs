@@ -6,6 +6,7 @@ using codility.Lessons.Lesson13;
 using codility.Lessons.Lesson14;
 using codility.Lessons.Lesson15;
 using codility.Lessons.Lesson16;
+using codility.Lessons.Lesson17;
 using codility.Lessons.Lesson2;
 using codility.Lessons.Lesson3;
 using codility.Lessons.Lesson4;
@@ -95,7 +96,8 @@ namespace codility
             //Test<AbsDistinct.Tester>();
             //Test<MinAbsSumOfTwo.Tester>();
             //Test<TieRopes.Tester>();
-            Test<MaxNonoverlappingSegments.Tester>();
+            //Test<MaxNonoverlappingSegments.Tester>();
+            Test<NumberSolitaire.Tester>();
         }
     }
 }
