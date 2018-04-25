@@ -9,28 +9,21 @@ namespace codility.Lessons.Lesson16
         int Solve(int[] A, int[] B)
         {
             var total = 0;
-            for (var i = B.Length - 1; i >= 0; )
+            for (var i = B.Length - 1; i >= 0; total++)
             {
+                var maxStart = A[i];
                 var end = B[i];
-                var start = A[i];
 
-                int maxStart2 = start;
-                int start2;
-                var j = i-1;
-                int ii = i;
-                for (j = i - 1; j >= 0 && (start2 = A[j]) > start; j--)
+                for (var j = i - 1; j >= 0 && B[j] > maxStart; j--)
                 {
-                    if (start2 > maxStart2)
+                    if (A[j] > maxStart)
                     {
-                        maxStart2 = start2;
-                        ii = j;
+                        maxStart = A[j];
+                        i = j;
                     }
                 }
-
-                total++;
-                i = ii - 1;
-
-                for (; i >= 0 && B[i] >= maxStart2; i--) ;
+               
+                for (i--; i >= 0 && B[i] >= maxStart; i--) ;
             }
             return total;
         }
