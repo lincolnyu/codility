@@ -32,7 +32,7 @@ namespace codility.Lessons.Lesson16
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
-                yield return CreateSingleInputSet(new[] { 1, 2, 3, 4, 1, 1, 3 }, 3);
+                yield return Create2InputSet(4, new[] { 1, 2, 3, 4, 1, 1, 3 }, 3);
             }
         }
     }

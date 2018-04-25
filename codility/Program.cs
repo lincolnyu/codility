@@ -94,7 +94,8 @@ namespace codility
             //Test<CountTriangles.Tester>();
             //Test<AbsDistinct.Tester>();
             //Test<MinAbsSumOfTwo.Tester>();
-            Test<TieRopes.Tester>();
+            //Test<TieRopes.Tester>();
+            Test<MaxNonoverlappingSegments.Tester>();
         }
     }
 }

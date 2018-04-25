@@ -8,7 +8,31 @@ namespace codility.Lessons.Lesson16
     {
         int Solve(int[] A, int[] B)
         {
-            throw new NotImplementedException();
+            var total = 0;
+            for (var i = B.Length - 1; i >= 0; )
+            {
+                var end = B[i];
+                var start = A[i];
+
+                int maxStart2 = start;
+                int start2;
+                var j = i-1;
+                int ii = i;
+                for (j = i - 1; j >= 0 && (start2 = A[j]) > start; j--)
+                {
+                    if (start2 > maxStart2)
+                    {
+                        maxStart2 = start2;
+                        ii = j;
+                    }
+                }
+
+                total++;
+                i = ii - 1;
+
+                for (; i >= 0 && B[i] >= maxStart2; i--) ;
+            }
+            return total;
         }
 
         public object Run(params object[] args)
