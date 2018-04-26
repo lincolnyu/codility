@@ -15,6 +15,7 @@ using codility.Lessons.Lesson6;
 using codility.Lessons.Lesson7;
 using codility.Lessons.Lesson8;
 using codility.Lessons.Lesson9;
+using codility.Lessons.Lesson90;
 using codility.TestFramework;
 using System;
 
@@ -98,7 +99,8 @@ namespace codility
             //Test<TieRopes.Tester>();
             //Test<MaxNonoverlappingSegments.Tester>();
             //Test<NumberSolitaire.Tester>();
-            Test<MinAbsSum.Tester>();
+            //Test<MinAbsSum.Tester>();
+            Test<LongestPassword.Tester>();
         }
     }
 }
