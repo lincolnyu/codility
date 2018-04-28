@@ -100,7 +100,8 @@ namespace codility
             //Test<MaxNonoverlappingSegments.Tester>();
             //Test<NumberSolitaire.Tester>();
             //Test<MinAbsSum.Tester>();
-            Test<LongestPassword.Tester>();
+            //Test<LongestPassword.Tester>();
+            Test<FloodDepth.Tester>();
         }
     }
 }

@@ -7,7 +7,29 @@ namespace codility.Lessons.Lesson90
     {
         public int Solve(int[] A)
         {
-            throw new System.NotImplementedException();
+            var max = 0;
+            var min = int.MaxValue;
+            var maxdepth = 0;
+            foreach (var a in A)
+            {
+                if (a > max)
+                {
+                    var d = max - min;
+                    if (d > maxdepth) maxdepth = d;
+                    max = a;
+                    min = int.MaxValue;
+                }
+                else if (a < min)
+                {
+                    min = a;
+                }
+                if (a > min)
+                {
+                    var d = a - min;
+                    if (d > maxdepth) maxdepth = d;
+                }
+            }
+            return maxdepth;
         }
 
         public object Run(params object[] args)
