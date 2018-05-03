@@ -101,7 +101,8 @@ namespace codility
             //Test<NumberSolitaire.Tester>();
             //Test<MinAbsSum.Tester>();
             //Test<LongestPassword.Tester>();
-            Test<FloodDepth.Tester>();
+            //Test<FloodDepth.Tester>();
+            Test<SlalomSkiing.Tester>();
         }
     }
 }
