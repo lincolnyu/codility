@@ -6,7 +6,9 @@ namespace codility.Lessons.Lesson90
 {
     class SlalomSkiing : ITestee
     {
-        class Solution
+        const int NumTypes = 6;
+
+        class Track
         {
             public enum Directions
             {
@@ -22,9 +24,9 @@ namespace codility.Lessons.Lesson90
             public static int GetTypeIndex(Directions dir, int turns)
                 => (int)dir + turns * 2;
 
-            public static Solution First(Directions dir)
+            public static Track First(Directions dir)
             {
-                return new Solution
+                return new Track
                 {
                     Passes = 1,
                     Turns = 0,
@@ -32,55 +34,32 @@ namespace codility.Lessons.Lesson90
                 };
             }
 
-            public Solution Follow()
-                => new Solution
+            public Track Follow()
+                => new Track
                 {
                     Passes = Passes + 1,
                     Turns = Turns,
                     Direction = Direction,
                 };
 
-            public Solution Turn()
-                => new Solution
+            public Track Turn()
+                => new Track
                 {
                     Passes = Passes + 1,
                     Turns = Turns + 1,
                     Direction = 1 - Direction
                 };
-
-            private static int Compare(Solution a, Solution b)
-            {
-                // a.Turns >= b.Turns
-                var diffPasses = a.Passes - b.Passes;
-                if (a.Turns + b.Passes > b.Turns + a.Passes)
-                {
-                    return 1;
-                }
-                return 0;
-            }
-
-            public int CompareTo(Solution other)
-            {
-                if (Direction != other.Direction) return 0;
-                if (Turns > other.Turns) return Compare(this, other);
-                if (other.Turns > Turns) return Compare(other, this);
-                if (Compare(this, other) == 1) return 1;
-                if (Compare(other, this) == 1) return -1;
-                return 0;
-            }
         }
-
-        const int NumTypes = 6;
 
         int Solve(int[] A)
         {
-            var dp = new Solution[A.Length][];
-            for (var i = 0; i <A.Length; i++)
+            var dp = new Track[A.Length][];
+            for (var i = 0; i < A.Length; i++)
             {
                 Solve(A, i, dp);
             }
             var max = 0;
-            for (var i = A.Length - 1; i>=0; i--)
+            for (var i = A.Length - 1; i >= 0; i--)
             {
                 if (max > i + 1) break;
                 var d = dp[i];
@@ -90,45 +69,47 @@ namespace codility.Lessons.Lesson90
             return max;
         }
 
-        void Solve(int[] A, int p, Solution[][] dp)
+        void Solve(int[] A, int p, Track[][] dp)
         {
-            dp[p] = new Solution[NumTypes];
+            dp[p] = new Track[NumTypes];
             var a = A[p];
-            for (var dir = Solution.Directions.Left; dir <= Solution.Directions.Right; dir++)
+            for (var dir = Track.Directions.Left; dir <= Track.Directions.Right; dir++)
             {
-                var b = Solution.First(dir);
+                var b = Track.First(dir);
                 dp[p][b.TypeIndex] = b;
                 if (p == 0) continue;
-                Solution last = null;
+                Track last = null;
                 var badcomp = dir > 0 ? -1 : 1;
                 for (var targetTurns = 0; targetTurns <= 2; targetTurns++)
                 {
-                    var type = Solution.GetTypeIndex(dir, targetTurns);
-                    int? maxPasses = null;
-                    for (var j = p - 1; j >= 0; j--)
+                    var type = Track.GetTypeIndex(dir, targetTurns);
+                    var maxPasses = 0;
+                    for (var j = p - 1; j >= maxPasses; j--)    
                     {
                         var aj = A[j];
                         if (a.CompareTo(aj) == badcomp) continue;
                         var solj = dp[j][type];
                         if (solj == null) continue;
-                        maxPasses = solj.Passes;
-                        dp[p][type] = solj.Follow();
-                        break;
+                        if(solj.Passes > maxPasses)
+                        {
+                            maxPasses = solj.Passes;
+                            dp[p][type] = solj.Follow();
+                        }
                     }
                     if (targetTurns > 0)
                     {
-                        var type2 = Solution.GetTypeIndex(1 - dir, targetTurns - 1);
-                        for (var j = p - 1; j >= 0; j--)
+                        var type2 = Track.GetTypeIndex(1 - dir, targetTurns - 1);
+                        for (var j = p - 1; j >= maxPasses; j--)
                         {
                             var aj = A[j];
                             if (a.CompareTo(aj) == badcomp) continue;
                             var solj = dp[j][type2];
                             if (solj == null) continue;
-                            if (maxPasses == null || solj.Passes > maxPasses.Value)
+                            if (solj.Passes > maxPasses)
                             {
+                                maxPasses = solj.Passes;
                                 dp[p][type] = solj.Turn();
                             }
-                            break;
                         }
                     }
                     if (dp[p][type] != null && last != null)
