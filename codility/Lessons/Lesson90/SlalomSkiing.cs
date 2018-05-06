@@ -112,12 +112,9 @@ namespace codility.Lessons.Lesson90
                             }
                         }
                     }
-                    if (dp[p][type] != null && last != null)
+                    if (dp[p][type] != null && last != null && last.Passes >= dp[p][type].Passes)
                     {
-                        if (last.Passes >= dp[p][type].Passes)
-                        {
-                            dp[p][type] = null;
-                        }
+                        dp[p][type] = null;
                     }
                     if (dp[p][type] != null)
                     {
