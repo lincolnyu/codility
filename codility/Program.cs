@@ -106,7 +106,8 @@ namespace codility
 
             //Test<SlalomSkiing.Tester>();
 
-            Test<DwarfsRafting.Tester>();
+            //Test<DwarfsRafting.Tester>();
+            Test<RectangleBuilderGreaterArea.Tester>();
         }
     }
 }
