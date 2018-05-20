@@ -16,6 +16,7 @@ using codility.Lessons.Lesson7;
 using codility.Lessons.Lesson8;
 using codility.Lessons.Lesson9;
 using codility.Lessons.Lesson90;
+using codility.Lessons.Lesson91;
 using codility.TestFramework;
 using System;
 
@@ -102,7 +103,10 @@ namespace codility
             //Test<MinAbsSum.Tester>();
             //Test<LongestPassword.Tester>();
             //Test<FloodDepth.Tester>();
-            Test<SlalomSkiing.Tester>();
+
+            //Test<SlalomSkiing.Tester>();
+
+            Test<DwarfsRafting.Tester>();
         }
     }
 }
