@@ -78,7 +78,6 @@ namespace codility.Lessons.Lesson90
                 var b = Track.First(dir);
                 dp[p][b.TypeIndex] = b;
                 if (p == 0) continue;
-                Track last = null;
                 var badcomp = dir > 0 ? -1 : 1;
                 for (var targetTurns = 0; targetTurns <= 2; targetTurns++)
                 {
@@ -111,14 +110,6 @@ namespace codility.Lessons.Lesson90
                                 dp[p][type] = solj.Turn();
                             }
                         }
-                    }
-                    if (dp[p][type] != null && last != null && last.Passes >= dp[p][type].Passes)
-                    {
-                        dp[p][type] = null;
-                    }
-                    if (dp[p][type] != null)
-                    {
-                        last = dp[p][type];
                     }
                 }
             }
