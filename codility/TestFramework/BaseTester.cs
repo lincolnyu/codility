@@ -91,5 +91,25 @@ namespace codility.TestFramework
                 ExpectedOutput = expected
             };
         }
+
+        protected TestSet Create4InputSet<TInput1, TInput2, TInput3, TInput4, TOutput>
+            (TInput1 input1, TInput2 input2, TInput3 input3, TInput4 input4, TOutput expected)
+        {
+            return new TestSet
+            {
+                Input = new object[] { input1, input2, input3, input4 },
+                ExpectedOutput = expected
+            };
+        }
+
+        protected TestSet Create5InputSet<TInput1, TInput2, TInput3, TInput4, TInput5, TOutput>
+            (TInput1 input1, TInput2 input2, TInput3 input3, TInput4 input4, TInput5 input5, TOutput expected)
+        {
+            return new TestSet
+            {
+                Input = new object[] { input1, input2, input3, input4, input5 },
+                ExpectedOutput = expected
+            };
+        }
     }
 }
