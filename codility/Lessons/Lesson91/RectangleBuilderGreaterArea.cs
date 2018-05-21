@@ -65,6 +65,7 @@ namespace codility.Lessons.Lesson91
                     result++;
                     for (; j < lenb && B[j] == B[j - 1]; j++) ;
                     j--;
+                    continue;
                 }
                 var tpa = pa-1;
                 for (; tpa >= 0 && B[tpa] * B[j] >= X; tpa--)
@@ -90,7 +91,8 @@ namespace codility.Lessons.Lesson91
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
-              //  yield return Create2InputSet(new[] { }, )
+                yield return Create2InputSet(new[] { 4, 4, 4, 4, 3, 3, 2, 2, 2, 2 }, 4, 5);
+                yield return Create2InputSet(new[] { 3, 3, 2, 2, 2, 2 }, 4, 2);
                 yield return Create2InputSet(new[] { 1, 2, 5, 1, 1, 2, 3, 5, 1 }, 5, 2);
                 yield return Create2InputSet(new int[] { }, 1, 0);
             }
