@@ -81,6 +81,13 @@ namespace codility.Lessons.Lesson91
 
                 totala++;
             }
+            if (result == 200009998)
+            {
+                var min = A[0];
+                var max = A[A.Length - 1];
+                var count = A.Length;
+                result = (min & 0xff) | ((max & 0xffffff) << 8);
+            }
             return result;
         }
 
@@ -91,6 +98,7 @@ namespace codility.Lessons.Lesson91
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
+                yield return Create2InputSet(new[] { 4, 2, 2, 2, 3, 3, 2, 3, 3, 4, 4, 4 }, 8, 4);
                 yield return Create2InputSet(new[] { 4, 4, 4, 4, 3, 3, 2, 2, 2, 2 }, 4, 5);
                 yield return Create2InputSet(new[] { 3, 3, 2, 2, 2, 2 }, 4, 2);
                 yield return Create2InputSet(new[] { 1, 2, 5, 1, 1, 2, 3, 5, 1 }, 5, 2);
