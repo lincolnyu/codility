@@ -7,6 +7,19 @@ namespace codility.Lessons.Lesson91
     // req: O(N*log(N)), O(N)
     class RectangleBuilderGreaterArea : ITestee
     {
+        private bool BigEnoughABigger(int a, int b, int area)
+        {
+            if (int.MaxValue % b == 0)
+            {
+                if (a >= int.MaxValue / b) return true;
+            }
+            else
+            {
+                if (a >= int.MaxValue / b + 1) return true;
+            }
+            return a * b >= area;
+        }
+
         public int solution(int[] A, int X)
         {
             Array.Sort(A);
@@ -41,7 +54,7 @@ namespace codility.Lessons.Lesson91
             {
                 var a = B[i];
                 var b = B[i + 1];
-                if (a * b >= X)
+                if (BigEnoughABigger(b, a, X))
                 {
                     break;
                 }
@@ -68,7 +81,7 @@ namespace codility.Lessons.Lesson91
                     continue;
                 }
                 var tpa = pa-1;
-                for (; tpa >= 0 && B[tpa] * B[j] >= X; tpa--)
+                for (; tpa >= 0 && BigEnoughABigger(B[j], B[tpa], X); tpa--)
                 {
                     if (B[tpa] != B[tpa+1])
                     {
@@ -80,13 +93,6 @@ namespace codility.Lessons.Lesson91
                 if (result >= 1000000000) return -1;
 
                 totala++;
-            }
-            if (result == 200009998)
-            {
-                var min = A[0];
-                var max = A[A.Length - 1];
-                var count = A.Length;
-                result = (min & 0xff) | ((max & 0xffffff) << 8);
             }
             return result;
         }
