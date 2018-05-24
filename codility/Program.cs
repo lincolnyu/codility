@@ -17,6 +17,7 @@ using codility.Lessons.Lesson8;
 using codility.Lessons.Lesson9;
 using codility.Lessons.Lesson90;
 using codility.Lessons.Lesson91;
+using codility.Lessons.Lesson92;
 using codility.TestFramework;
 using System;
 
@@ -107,7 +108,8 @@ namespace codility
             //Test<SlalomSkiing.Tester>();
 
             //Test<DwarfsRafting.Tester>();
-            Test<RectangleBuilderGreaterArea.Tester>();
+            //Test<RectangleBuilderGreaterArea.Tester>();
+            Test<TennisTournament.Tester>();
         }
     }
 }
