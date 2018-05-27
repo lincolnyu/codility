@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.27428.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "codility", "codility\codility.csproj", "{44C532DA-BC50-4BC9-9149-D50194465667}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HilbertMaze", "HilbertMaze\HilbertMaze.csproj", "{FCCA3E61-F776-4B6A-8B7B-384B3EE97BE0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CognitionTraining", "CognitionTraining", "{49D06382-1E48-4142-AE73-8ECCB78D11AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +19,16 @@ Global
 		{44C532DA-BC50-4BC9-9149-D50194465667}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44C532DA-BC50-4BC9-9149-D50194465667}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44C532DA-BC50-4BC9-9149-D50194465667}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCCA3E61-F776-4B6A-8B7B-384B3EE97BE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCCA3E61-F776-4B6A-8B7B-384B3EE97BE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCCA3E61-F776-4B6A-8B7B-384B3EE97BE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCCA3E61-F776-4B6A-8B7B-384B3EE97BE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FCCA3E61-F776-4B6A-8B7B-384B3EE97BE0} = {49D06382-1E48-4142-AE73-8ECCB78D11AF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BF3BC324-F5A1-4EC0-98EB-04548EC24095}
