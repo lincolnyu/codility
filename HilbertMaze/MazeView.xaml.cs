@@ -40,6 +40,7 @@ namespace HilbertMaze
             var dw = targetSize - DrawingCanvas.ActualWidth;
             Width += dw;
             Height += dh;
+            Title = $"Hilbert Maze of order {N}, side length {MazeSize}";
         }
 
         private void ReDraw()
