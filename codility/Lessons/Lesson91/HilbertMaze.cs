@@ -281,6 +281,7 @@ namespace codility.Lessons.Lesson91
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
+                yield return Create5InputSet(1, 2, 0, 2, 1, 1);
                 yield return Create5InputSet(1, 2, 1, 3, 4, 8);
                 yield return Create5InputSet(2, 2, 5, 6, 6, 7);
                 yield return Create5InputSet(3, 6, 6, 10, 13, 39);
