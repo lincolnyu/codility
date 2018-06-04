@@ -196,7 +196,8 @@ namespace codility.Lessons.Lesson91
             var i = 0;
             for (; i < distsA.Length && i < distsC.Length; i++)
             {
-                if (distsA[i].Item2 != distsC[i].Item2 || distsA[i].Item3 != distsC[i].Item3)
+                if (distsA[i].Item4 == null || distsC[i].Item4 == null
+                    || distsA[i].Item2 != distsC[i].Item2 || distsA[i].Item3 != distsC[i].Item3)
                 {
                     break;
                 }
@@ -252,6 +253,7 @@ namespace codility.Lessons.Lesson91
 
         public IEnumerable<Tuple<int, int, int, Cross>> GetDists(IEnumerable<Cross> crosses, int n, int row, int col)
         {
+            yield return new Tuple<int, int, int, Cross>(0, row, col, null);
             var rcrosses = crosses.Reverse().ToArray();
             if (rcrosses.Length > 0)
             {
@@ -268,10 +270,6 @@ namespace codility.Lessons.Lesson91
                     i++;
                 }
             }
-            else
-            {
-                yield return new Tuple<int, int, int, Cross>(0, row, col, null);
-            }
         }
 
         public object Run(params object[] args)
@@ -281,6 +279,11 @@ namespace codility.Lessons.Lesson91
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
+                yield return Create5InputSet(1, 2, 1, 2, 1, 0);
+                yield return Create5InputSet(1, 2, 0, 0, 0, 2);
+                yield return Create5InputSet(1, 2, 1, 2, 2, 1);
+                yield return Create5InputSet(1, 2, 0, 2, 1, 1);
+                yield return Create5InputSet(1, 2, 0, 2, 0, 0);
                 yield return Create5InputSet(1, 2, 1, 3, 4, 8);
                 yield return Create5InputSet(2, 2, 5, 6, 6, 7);
                 yield return Create5InputSet(3, 6, 6, 10, 13, 39);
