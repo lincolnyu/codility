@@ -110,7 +110,8 @@ namespace codility
             //Test<DwarfsRafting.Tester>();
             //Test<RectangleBuilderGreaterArea.Tester>();
             //Test<TennisTournament.Tester>();
-            Test<SocksLaundering.Tester>();
+            //Test<SocksLaundering.Tester>();
+            Test<HilbertMaze.Tester>();
         }
     }
 }
