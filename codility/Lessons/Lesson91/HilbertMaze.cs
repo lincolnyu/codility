@@ -260,7 +260,8 @@ namespace codility.Lessons.Lesson91
                 {
                     if (cross.Covers(row, col))
                     {
-                        cross.GetExit(i, row, col, out var steps, out var orow, out var ocol);
+                        int steps, orow, ocol;
+                        cross.GetExit(i, row, col, out steps, out orow, out ocol);
                         yield return new Tuple<int, int, int, Cross>(steps, orow, ocol, cross);
                         row = orow;
                         col = ocol;
