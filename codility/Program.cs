@@ -111,7 +111,8 @@ namespace codility
             //Test<RectangleBuilderGreaterArea.Tester>();
             //Test<TennisTournament.Tester>();
             //Test<SocksLaundering.Tester>();
-            Test<HilbertMaze.Tester>();
+            //Test<HilbertMaze.Tester>();
+            Test<TreeProduct.Tester>();
         }
     }
 }
