@@ -282,6 +282,8 @@ namespace codility.Lessons.Lesson91
                 yield return Create5InputSet(1, 2, 1, 2, 1, 0);
                 yield return Create5InputSet(1, 2, 0, 0, 0, 2);
                 yield return Create5InputSet(1, 2, 1, 2, 2, 1);
+                yield return Create5InputSet(1, 1, 0, 1, 0, 0);
+                yield return Create5InputSet(1, 0, 0, 2, 1, 3);
                 yield return Create5InputSet(1, 2, 0, 2, 1, 1);
                 yield return Create5InputSet(1, 2, 0, 2, 0, 0);
                 yield return Create5InputSet(1, 2, 1, 3, 4, 8);
