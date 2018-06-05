@@ -116,7 +116,8 @@ namespace codility
 
             //Test<TreeProduct.Tester>();
             //Test<StrSymmetryPoint.Tester>();
-            Test<TreeHeight.Tester>();
+            //Test<TreeHeight.Tester>();
+            Test<ArrayInversionCount.Tester>();
         }
     }
 }
