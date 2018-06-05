@@ -108,8 +108,8 @@ namespace codility.Lessons.Lesson91
                 return new Cross
                 {
                     Dir = dir,
-                    CenterRow = row < CenterRow? CenterRow-d : CenterCol + d,
-                    CenterCol = col < CenterCol? CenterCol-d : CenterCol + d
+                    CenterRow = row < CenterRow ? CenterRow - d : CenterRow + d,
+                    CenterCol = col < CenterCol ? CenterCol - d : CenterCol + d
                 };
             }
 
@@ -132,6 +132,8 @@ namespace codility.Lessons.Lesson91
 
             private Direction GetNext(Direction currDir, int quarter)
             {
+                quarter += 4 - (int)currDir;
+                quarter %= 4;
                 Direction b;
                 if (quarter < 2) b = Direction.Down;
                 else if (quarter == 2) b = Direction.Left;
@@ -280,6 +282,7 @@ namespace codility.Lessons.Lesson91
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
+                yield return Create5InputSet(3, 6, 2, 14, 10, 40);
                 yield return Create5InputSet(1, 2, 1, 2, 1, 0);
                 yield return Create5InputSet(1, 2, 0, 0, 0, 2);
                 yield return Create5InputSet(1, 2, 1, 2, 2, 1);
