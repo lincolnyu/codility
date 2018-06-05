@@ -5,7 +5,7 @@ using codility.TestFramework;
 
 namespace codility.Lessons.Lesson91
 {
-    public class HilbertMaze : ITestee
+    public class HilbertMaze : BaseTestee
     {
         public enum Direction
         {
@@ -274,25 +274,22 @@ namespace codility.Lessons.Lesson91
                 }
             }
         }
-
-        public object Run(params object[] args)
-            => solution((int)args[0], (int)args[1], (int)args[2], (int)args[3], (int)args[4]);
-
+        
         public class Tester : BaseSelfTester<HilbertMaze>
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
-                yield return Create5InputSet(3, 6, 2, 14, 10, 40);
-                yield return Create5InputSet(1, 2, 1, 2, 1, 0);
-                yield return Create5InputSet(1, 2, 0, 0, 0, 2);
-                yield return Create5InputSet(1, 2, 1, 2, 2, 1);
-                yield return Create5InputSet(1, 1, 0, 1, 0, 0);
-                yield return Create5InputSet(1, 0, 0, 2, 1, 3);
-                yield return Create5InputSet(1, 2, 0, 2, 1, 1);
-                yield return Create5InputSet(1, 2, 0, 2, 0, 0);
-                yield return Create5InputSet(1, 2, 1, 3, 4, 8);
-                yield return Create5InputSet(2, 2, 5, 6, 6, 7);
-                yield return Create5InputSet(3, 6, 6, 10, 13, 39);
+                yield return CreateInputSet(40, 3, 6, 2, 14, 10);
+                yield return CreateInputSet(0, 1, 2, 1, 2, 1);
+                yield return CreateInputSet(2, 1, 2, 0, 0, 0);
+                yield return CreateInputSet(1, 1, 2, 1, 2, 2);
+                yield return CreateInputSet(0, 1, 1, 0, 1, 0);
+                yield return CreateInputSet(3, 1, 0, 0, 2, 1);
+                yield return CreateInputSet(1, 1, 2, 0, 2, 1);
+                yield return CreateInputSet(0, 1, 2, 0, 2, 0);
+                yield return CreateInputSet(8, 1, 2, 1, 3, 4);
+                yield return CreateInputSet(7, 2, 2, 5, 6, 6);
+                yield return CreateInputSet(39, 3, 6, 6, 10, 13);
             }
         }
     }

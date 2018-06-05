@@ -111,5 +111,15 @@ namespace codility.TestFramework
                 ExpectedOutput = expected
             };
         }
+
+
+        protected TestSet CreateInputSet(object expected, params object[] inputs)
+        {
+            return new TestSet
+            {
+                Input = inputs,
+                ExpectedOutput = expected
+            };
+        }
     }
 }
