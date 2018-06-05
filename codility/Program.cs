@@ -18,6 +18,7 @@ using codility.Lessons.Lesson9;
 using codility.Lessons.Lesson90;
 using codility.Lessons.Lesson91;
 using codility.Lessons.Lesson92;
+using codility.Lessons.Lesson99;
 using codility.TestFramework;
 using System;
 
@@ -112,7 +113,10 @@ namespace codility
             //Test<TennisTournament.Tester>();
             //Test<SocksLaundering.Tester>();
             //Test<HilbertMaze.Tester>();
-            Test<TreeProduct.Tester>();
+
+            //Test<TreeProduct.Tester>();
+            //Test<StrSymmetryPoint.Tester>();
+            Test<TreeHeight.Tester>();
         }
     }
 }
