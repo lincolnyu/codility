@@ -12,39 +12,82 @@ namespace codility.Lessons.Lesson99
             public int Index;
 
             public int CompareTo(Pod other)
-                => Val.CompareTo(other.Val);
+            {
+                var c = Val.CompareTo(other.Val);
+                if (c != 0) return c;
+                return Index.CompareTo(other.Index);
+            }
         }
 
         public int solution(int[] A)
         {
-            int n = A.Length;
+           int n = A.Length;
             var pods = new Pod[n];
             for (var i = 0; i < n; i++)
             {
                 pods[i] = new Pod { Val = A[i], Index = i };
             }
             Array.Sort(pods);
-            var ranks = new int[n];
-            for (var i = 0; i < n; i++)
+            throw new NotImplementedException();
+        }
+
+        public static int ref_solution(int[] A)
+        {
+            var total = 0;
+            for (var i = 0; i < A.Length-1; i++)
             {
-                if (i > 0 && pods[i].Val == pods[i-1].Val)
+                for (var j = i+1; j < A.Length; j++)
                 {
-                    ranks[pods[i].Index] = ranks[pods[i - 1].Index];
-                }
-                else
-                {
-                    ranks[pods[i].Index] = i;
+                    if (A[j] < A[i])
+                    {
+                        total++;
+                    }
                 }
             }
-            throw new NotImplementedException();
+            return total;
         }
 
         public class Tester : BaseSelfTester<ArrayInversionCount>
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
-                yield return CreateInputSet(4, new[] { -1, 6, 3, 4, 7, 4 });
+                return GetDistinctNumberTestSets();
+                //yield return Generate(new[] { 7, 1, 1, 2, 3, 4, 6, 5, 4, 3, 7, 8, 9 });
+                //yield return Generate(new[] { -1, 6, 3, 4, 7, 4 });
+                //yield return CreateInputSet(4, new[] { -1, 6, 3, 4, 7, 4 });
             }
+
+            IEnumerable<TestSet> GetDistinctNumberTestSets()
+            {
+                var r = new Random(123);
+                for (var t = 0; t < 10; t++)
+                {
+                    var max = r.Next(10000);
+                    var seq = new int[max];
+                    var used = new bool[max];
+                    for (var i = 0; i < max; i++)
+                    {
+                        var n = r.Next(max - i);
+                        var j = 0;
+                        for (j= 0; j < max; j++)
+                        {
+                            if (!used[j])
+                            {
+                                if (n-- <= 0)
+                                {
+                                    used[j] = true;
+                                    break;
+                                }
+                            }
+                        }
+                        seq[i] = j;
+                    }
+                    yield return Generate(seq);
+                }
+            }
+
+            TestSet Generate(int[] A)
+                => CreateInputSet(ref_solution(A), A);
         }
     }
 }
