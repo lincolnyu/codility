@@ -11,9 +11,6 @@ namespace codility.Lessons.Lesson99
             public int Val;
             public int Index;
 
-            public int LeftCount;
-            public bool Picked;
-
             public int CompareTo(Pod other)
             {
                 var c = Val.CompareTo(other.Val);
