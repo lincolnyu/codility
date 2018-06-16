@@ -11,6 +11,9 @@ namespace codility.Lessons.Lesson99
             public int Val;
             public int Index;
 
+            public int LeftCount;
+            public bool Picked;
+
             public int CompareTo(Pod other)
             {
                 var c = Val.CompareTo(other.Val);
@@ -19,17 +22,85 @@ namespace codility.Lessons.Lesson99
             }
         }
 
+        interface IPickable
+        {
+            int LeftCount { get; set; }
+            bool Picked { get; set; }
+        }
+
+        class Node : IPickable
+        {
+            public int LeftCount { get; set; }
+            public bool Picked { get; set; }
+        }
+
         public int solution(int[] A)
         {
-           int n = A.Length;
+            int n = A.Length;
             var pods = new Pod[n];
             for (var i = 0; i < n; i++)
             {
                 pods[i] = new Pod { Val = A[i], Index = i };
             }
             Array.Sort(pods);
-            throw new NotImplementedException();
+
+            var nodes = new Node[n];
+            for (var i = 0; i < n; i++)
+            {
+                nodes[i] = new Node { };
+            }
+
+            var total = 0;
+            var count = 0;
+            for (var i = n - 1; i >= 0; i--, count++)
+            {
+                var pod = pods[i];
+                var offset = GetIndexAndUpdate(nodes, pod.Index);
+                total += i - pod.Index + offset;
+            }
+            return total;
         }
+
+        private int GetIndexAndUpdate(IPickable[] pickable, int t)
+        {
+            var n = pickable.Length;
+            var index = 0;
+            var begin = 0;
+            var end = pickable.Length-1;
+            var stack = new Stack<int>();
+            while(begin <= end)
+            {
+                var p = (begin + end) / 2;
+                var c = pickable[p];
+                if (p > t)
+                {
+                    end = p - 1;
+                }
+                else if (p < t)
+                {
+                    begin = p + 1;
+                    index += c.LeftCount;
+                    if (c.Picked) index++;
+                }
+                else
+                {
+                    index += c.LeftCount;
+                    c.Picked = true;
+                    while (stack.Count > 0)
+                    {
+                        var i = stack.Pop();
+                        if (i > p)
+                        {
+                            pickable[i].LeftCount++;
+                        }
+                    }
+                    break;
+                }
+                stack.Push(p);
+            }
+            return index;
+        }
+        
 
         public static int ref_solution(int[] A)
         {
@@ -52,9 +123,11 @@ namespace codility.Lessons.Lesson99
             public override IEnumerable<TestSet> GetTestSets()
             {
                 return GetDistinctNumberTestSets();
-                //yield return Generate(new[] { 7, 1, 1, 2, 3, 4, 6, 5, 4, 3, 7, 8, 9 });
-                //yield return Generate(new[] { -1, 6, 3, 4, 7, 4 });
-                //yield return CreateInputSet(4, new[] { -1, 6, 3, 4, 7, 4 });
+                /*
+                yield return CreateInputSet(6, new[] { 4, 3, 2, 1 });
+                yield return Generate(new[] { 7, 1, 1, 2, 3, 4, 6, 5, 4, 3, 7, 8, 9 });
+                yield return Generate(new[] { -1, 6, 3, 4, 7, 4 });
+                yield return CreateInputSet(4, new[] { -1, 6, 3, 4, 7, 4 });*/
             }
 
             IEnumerable<TestSet> GetDistinctNumberTestSets()
