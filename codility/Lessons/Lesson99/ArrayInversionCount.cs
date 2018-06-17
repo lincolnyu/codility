@@ -54,6 +54,7 @@ namespace codility.Lessons.Lesson99
                 var pod = pods[i];
                 var offset = GetIndexAndUpdate(nodes, pod.Index);
                 total += i - pod.Index + offset;
+                if (total > 1000000000) return -1;
             }
             return total;
         }
