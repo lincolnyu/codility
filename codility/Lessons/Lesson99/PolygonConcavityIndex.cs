@@ -30,9 +30,9 @@ namespace codility.Lessons.Lesson99
             return -1;
         }
 
-        private int GetSignedArea2(Point2D[] A)
+        private long GetSignedArea2(Point2D[] A)
         {
-            var area = 0;
+            long area = 0;
             for (var i = 0; i < A.Length; i++)
             {
                 var xi = A[i].x;
@@ -41,13 +41,13 @@ namespace codility.Lessons.Lesson99
                 if (i1 == A.Length) i1 = 0;
                 var xi1 = A[i1].x;
                 var yi1 = A[i1].y;
-                var d = xi * yi1 - xi1 * yi;
+                var d = (long)xi * yi1 - (long)xi1 * yi;
                 area += d;
             }
             return area;
         }
 
-        private int TurnRate(Point2D[] A, int i)
+        private long TurnRate(Point2D[] A, int i)
         {
             var i0 = i - 1;
             if (i0 < 0) i0 += A.Length;
@@ -65,7 +65,7 @@ namespace codility.Lessons.Lesson99
             //   -------------
             //    dx1 + dy1 j
             //var diff_x = dx2 * dx1 + dy2 * dy1;
-            var diff_y = dx1 * dy2 - dx2 * dy1;
+            var diff_y = (long)dx1 * dy2 - (long)dx2 * dy1;
             return diff_y;
         }
 
