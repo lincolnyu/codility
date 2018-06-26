@@ -5,6 +5,16 @@ namespace codility.Lessons.Lesson91
 {
     class TreeProduct : BaseTestee
     {
+        class Link
+        {
+            public TreeNode Node1;
+            public TreeNode Node2;
+        }
+        class TreeNode
+        {
+            public List<Link> Links { get; } = new List<Link>();
+        }
+
         // req: O(N*log(N)), O(N)
         public int solution(int[] A, int[] B)
         {
