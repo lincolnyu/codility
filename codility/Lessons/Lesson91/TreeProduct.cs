@@ -234,11 +234,11 @@ namespace codility.Lessons.Lesson91
                     }
                     else if (m < lastM)
                     {
+                        j = j.Next;
                         break;
                     }
                     lastM = m;
                 }
-                j = j.Next;
             }
             return maxm;
         }
@@ -264,6 +264,9 @@ namespace codility.Lessons.Lesson91
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
+                yield return CreateInputSet("27",
+                    new[] { 1, 1, 4, 4, 7, 8, 1, 7 },
+                    new[] { 0, 2, 3, 5, 6, 7, 4, 1 });
                 yield return CreateInputSet("18", new [] { 0, 1, 1, 3, 3, 6, 7 },
                     new [] { 1, 2, 3, 4, 5, 3, 5 });
             }
