@@ -114,11 +114,11 @@ namespace codility
             //Test<SocksLaundering.Tester>();
             //Test<HilbertMaze.Tester>();
 
-            //Test<TreeProduct.Tester>();
+            Test<TreeProduct.Tester>();
             //Test<StrSymmetryPoint.Tester>();
             //Test<TreeHeight.Tester>();
             //Test<ArrayInversionCount.Tester>();
-            Test<PolygonConcavityIndex.Tester>();
+            //Test<PolygonConcavityIndex.Tester>();
         }
     }
 }
