@@ -146,6 +146,12 @@ namespace codility.Lessons.Lesson91
             }
         }
 
+        private long Mul(int a, int b, int c)
+        {
+            var d = (long)a * b;
+            return d * c;
+        }
+
         private void TraverseTreePostOrder(TreeNode node, Link parentLink, VisitNode visit)
         {
             foreach (var link in node.GetSublinks(parentLink))
@@ -180,7 +186,7 @@ namespace codility.Lessons.Lesson91
             return r;
         }
 
-        private int GetDoubleBridgesBurnMax(Link startLink, int totalNodes)
+        private long GetDoubleBridgesBurnMax(Link startLink, int totalNodes)
         {
             // 'startLink' divide the tree to two subtrees with a and M-a nodes respectively
             // Then it follows that two bridges have to be one on each side of 'startLink' 
@@ -207,7 +213,7 @@ namespace codility.Lessons.Lesson91
             list1 = LaunderList(list1);
             list2 = LaunderList(list2);
 
-            var maxm = 0;
+            long maxm = 0;
             var maxmset = true;
 
             for (LinkedListNode<int> i = list1.First, j = list2.Last; 
@@ -215,13 +221,13 @@ namespace codility.Lessons.Lesson91
             {
                 var a = i.Value;
                 maxmset = false;
-                int lastM = -1;
+                long lastM = 0;
                 for (; j != null; j = j.Previous)
                 {
                     var b = j.Value;
                     var c = totalNodes - a - b;
-                    var m = a * b * c;
-                    if (m > maxm)
+                    var m = Mul(a, b, c);
+                    if (maxm < m)
                     {
                         maxm = m;
                         maxmset = true;
@@ -238,7 +244,7 @@ namespace codility.Lessons.Lesson91
         }
 
         // req: O(N*log(N)), O(N)
-        public int solution(int[] A, int[] B)
+        public string solution(int[] A, int[] B)
         {
             var N = A.Length;
             var sol0 = N + 1; // total nodes
@@ -249,16 +255,16 @@ namespace codility.Lessons.Lesson91
             var sol1 = sbb.Max;
             var ideal3 = GetIdeal3(sol0);
             var max01 = Math.Max(sol0, sol1);
-            if (max01 >= ideal3) return max01;
+            if (max01 >= ideal3) return max01.ToString();
             var sol2 = GetDoubleBridgesBurnMax(sbb.MaxLink, sol0);
-            return Math.Max(max01, sol2);
+            return Math.Max((long)max01, sol2).ToString();
         }
 
         public class Tester : BaseSelfTester<TreeProduct>
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
-                yield return CreateInputSet(18, new [] { 0, 1, 1, 3, 3, 6, 7 },
+                yield return CreateInputSet("18", new [] { 0, 1, 1, 3, 3, 6, 7 },
                     new [] { 1, 2, 3, 4, 5, 3, 5 });
             }
         }
