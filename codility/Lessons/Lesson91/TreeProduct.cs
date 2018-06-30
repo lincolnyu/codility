@@ -70,7 +70,7 @@ namespace codility.Lessons.Lesson91
         class SingleBridgeBurner
         {
             public readonly int TotalNodes;
-            public int Max = 0;
+            public long Max = 0;
             public Link MaxLink = null;
 
             public SingleBridgeBurner(int totalNodes)
@@ -84,7 +84,7 @@ namespace codility.Lessons.Lesson91
                 {
                     var c1 = parentLink.GetSubtreeSize(node, TotalNodes);
                     var c2 = TotalNodes - c1;
-                    var m = c1 * c2;
+                    var m = (long)c1 * c2;
                     if (m > Max)
                     {
                         Max = m;
@@ -162,11 +162,11 @@ namespace codility.Lessons.Lesson91
             visit(node, parentLink);
         }
 
-        private int GetIdeal3(int nodeCount)
+        private long GetIdeal3(int nodeCount)
         {
             var n1 = (nodeCount + 1) / 3;
             var n2 = nodeCount - n1 * 2;
-            return n1 * n1 * n2;
+            return Mul(n1, n1, n2);
         }
 
         private LinkedList<int> LaunderList(LinkedList<int> ll)
