@@ -41,7 +41,6 @@ namespace codility.Lessons.Lesson91
 
         class TreeNode
         {
-            public int ParentIndex;
             public List<Link> Links { get; } = new List<Link>();
 
             public IEnumerable<Link> GetSublinks(Link parentLink)

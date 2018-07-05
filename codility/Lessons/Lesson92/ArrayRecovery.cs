@@ -34,11 +34,19 @@ namespace codility.Lessons.Lesson92
             }
         }
 
-        private void MulNonincreasingCombinations(ref int total, int n, int m, int modulo)
+        private void MulNonincreasingCombinations(ref ulong total, int n, int m, int modulo)
         {
             // 'count' balls to be put in 'space' boxes
             //(n+m-1)!/n!*(m-1)! ways?  See multinomial coefficent
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
+            var num = 1UL;
+            var denom = 1UL;
+            for (ulong i = (ulong)(n + m - 1), j = (ulong)Math.Min(n, m - 1); j > 0; i--, j--)
+            {
+                num *= i;
+                denom *= j;
+            }
+            total *= num / denom;
         }
 
         public int solution(int[] B, int M)
@@ -58,7 +66,7 @@ namespace codility.Lessons.Lesson92
             var eqCount = 1;
             var currMax = M; // <=
             var currBase = 0; // >
-            var total = 0;
+            var total = 1UL;
             for (var i = 1; i < N; i++)
             {
                 var b = B[i];
@@ -113,16 +121,16 @@ namespace codility.Lessons.Lesson92
 
             MulNonincreasingCombinations(ref total, eqCount, currMax - currBase, modulo);
 
-            return total;
+            return (int)(total % modulo);
         }
 
         public class Tester : BaseSelfTester<ArrayRecovery>
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
+                yield return CreateInputSet(49965, new[] { 0, 0 }, 100000);
                 yield return CreateInputSet(3, new[] { 0, 2, 2 }, 4);
                 yield return CreateInputSet(4, new[] { 0, 3, 5, 6 }, 10);
-                yield return CreateInputSet(49965, new[] { 0, 0 }, 100000);
             }
         }
     }
