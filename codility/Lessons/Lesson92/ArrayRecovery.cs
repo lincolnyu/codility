@@ -34,6 +34,15 @@ namespace codility.Lessons.Lesson92
             }
         }
 
+        /// <summary>
+        ///  Get the inverse of a in terms of prime modulo n using extended euclidean algo
+        /// </summary>
+        /// <param name="a">The number to get inverse of</param>
+        /// <param name="n">The characteristic (modulo)</param>
+        /// <returns>The iverse of a in the prime field with characteristic n</returns>
+        /// <remarks>
+        ///  https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
+        /// </remarks>
         private int GetInverse(int a, int n)
         {
             var t = 0;
@@ -54,24 +63,6 @@ namespace codility.Lessons.Lesson92
             return t;
         }
 
-        private int Combination2(int n, int m, int pm)
-        {
-            var num = 1;
-            var denom = 1;
-            var len = Math.Min(n - m, m);
-
-            for (var i = 0; i < len; i++)
-            {
-                num *= n - i;
-                denom *= 1 + i;
-                if (num >= pm) num -= pm;
-                if (denom >= pm) denom -= pm;
-            }
-
-            // denom * x = 1 mod pm
-            var inv = GetInverse(denom, pm);
-            return (int)(((long)num * inv) % pm);
-        }
         private int Combination(int n, int m, int pm)
         {
             var num = 1UL;
@@ -82,18 +73,23 @@ namespace codility.Lessons.Lesson92
             {
                 num *= (ulong)(n - i);
                 denom *= (ulong)(1 + i);
+                if (num >= (ulong)pm) num %= (ulong)pm;
+                if (denom >= (ulong)pm) denom %= (ulong)pm;
             }
 
-            return (int)((num / denom) % (ulong)pm);
+            var inv = GetInverse((int)denom, pm);
+            return (int)((num * (ulong)inv) % (ulong)pm);
         }
+
         private void MulNonincreasingCombinations(ref int total, int n, int m, int primeMod)
         {
             // n balls to be put in m boxes
             //(n+m-1)!/n!*(m-1)! ways?  See stars (n) and bars (m-1) method
             // throw new NotImplementedException();
             var c = Combination((n + m - 1), n, primeMod);
-            total *= c;
-            total %= primeMod;
+            ulong tmp = (ulong)total * (ulong)c;
+            tmp %= (ulong)primeMod;
+            total = (int)tmp;
         }
 
         public int solution(int[] B, int M)
@@ -144,9 +140,13 @@ namespace codility.Lessons.Lesson92
                 }
                 else // b < B[i-1]
                 {
+                    // eqCount items (currBase, currMax]
+                    MulNonincreasingCombinations(ref total, eqCount, currMax - currBase, modulo);
+
                     if (b == 0) // new min
                     {
-                        currMax = record[0] - 1;
+                        currMax = record[0];
+                        currBase = 0;
                         eqCount = 1;
                         rcsize = 0; //clear record
                     }
@@ -155,9 +155,6 @@ namespace codility.Lessons.Lesson92
                         var ib = BinarySearch(record, rcsize, b);
                         var ib1 = ib + 1;
                         // A[i] > record[ib] && A[i] <= record[ib1]
-
-                        // eqCount items (currBase, currMax]
-                        MulNonincreasingCombinations(ref total, eqCount, currMax - currBase, modulo);
 
                         currBase = record[ib]; // >
                         currMax = record[ib1]; // <=
@@ -175,6 +172,9 @@ namespace codility.Lessons.Lesson92
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
+                yield return CreateInputSet(1000000006, new[] { 0, 328193, 0, 1 }, 604469);
+                yield return CreateInputSet(91, new[] { 0, 0 }, 999999993);
+                yield return CreateInputSet(44, new[] { 0, 11, 0 }, 15);
                 yield return CreateInputSet(49965, new[] { 0, 0 }, 100000);
                 yield return CreateInputSet(3, new[] { 0, 2, 2 }, 4);
                 yield return CreateInputSet(4, new[] { 0, 3, 5, 6 }, 10);
