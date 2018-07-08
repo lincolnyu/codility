@@ -7,83 +7,91 @@ namespace codility.Lessons.Lesson92
 {
     class DiamondsCount : BaseTestee
     {
+        class Point :IComparable<Point>
+        {
+            public int X;
+            public int Y;
+
+            public int CompareTo(Point other)
+            {
+                var c = Y.CompareTo(other.Y);
+                if (c!=0) return c;
+                return X.CompareTo(other.X);
+            }
+
+            public static IEnumerable<Point> Load(int[] X, int[] Y)
+            {
+                for (var i = 0; i < X.Length; i++)
+                {
+                    yield return new Point{X = X[i], Y = Y[i]};
+                }
+            }
+        }
+
         public int solution(int[] X, int[] Y)
         {
             var N = X.Length;
-            var xs = X.Distinct().OrderBy(x => x).ToArray();
-            var ys = Y.Distinct().OrderBy(x => x).ToArray();
-            var map = new bool[xs.Length, ys.Length];
-            var posArray = new Tuple<int, int>[N];
 
-            for (var i = 0; i < N; i++)
-            {
-                var x = X[i];
-                var y = Y[i];
-                var ix = Array.BinarySearch(xs, x);
-                var iy = Array.BinarySearch(ys, y);
-                map[ix, iy] = true;
-                posArray[i] = new Tuple<int, int>(ix, iy);
-            }
+            var points = Point.Load(X, Y).ToArray();
 
-            var dxs = new List<Tuple<int,int>>[xs.Length];
-            for (var i = 1; i < xs.Length-1; i++)
+            var midsX = new List<Point>();
+            var midsY = new List<Point>();
+
+            for (var i = 0; i < points.Length-1; i++)
             {
-                for (int j1 = i-1, j2 =i+1; j1 >= 0 && j2 < xs.Length; )
+                var pi = points[i];
+                for (var j = i+1; j < points.Length; j++)
                 {
-                    var d1 = xs[i] - xs[j1];
-                    var d2 = xs[j2] - xs[i];
-                    if (d1==d2)
+                    var pj = points[j];
+                    if (pi.Y == pj.Y)
                     {
-                        if (dxs[i] == null) dxs[i] = new List<Tuple<int, int>>();
-                        dxs[i].Add(new Tuple<int, int>(j1, j2));
-                        j1--;
-                        j2++;
-                    }
-                    else if (d1 < d2)
-                    {
-                        j1--;
-                    }
-                    else
-                    {
-                        j2++;
-                    }
-                }
-            }
-
-            var total = 0;
-            for (var i = 0; i < N; i++)
-            {
-                var t = posArray[i];
-                var ix = t.Item1;
-                var iy = t.Item2;
-                // x, y as top vertex
-                if (iy >= ys.Length - 2) continue;
-                if (ix == 0 || ix == xs.Length - 1) continue;
-                if (dxs[ix] == null || dxs[ix].Count == 0) continue;
-                
-                for (var py = iy + 1; py < ys.Length; py++)
-                {
-                    if (map[ix, py])
-                    {
-                        var sumy = ys[iy] + ys[py];
-                        if (sumy % 2 != 0) continue;
-                        var my = sumy / 2;
-                        var imy = Array.BinarySearch(ys, my);
-                        if (imy < 0) continue;
-                        foreach (var dx in dxs[ix])
+                        var sumx = pi.X + pj.X;
+                        if (sumx %2 ==0)
                         {
-                            if (map[dx.Item1, imy] && map[dx.Item2, imy])
-                            {
-                                total++;
-                            }
+                            midsX.Add(new Point{X = sumx/2, Y = pi.Y});
+                        }
+                    }
+                    else if (pi.X == pj.X)
+                    {
+                        var sumy = pi.Y + pj.Y;
+                        if (sumy %2 ==0)
+                        {
+                            midsY.Add(new Point{X = pi.X, Y = sumy/2});
                         }
                     }
                 }
             }
 
+            midsX.Sort();
+            midsY.Sort();
+
+            var total = 0;
+            for (int i = 0, j = 0; i < midsX.Count && j < midsY.Count; )
+            {
+                var mx = midsX[i];
+                var my = midsY[j];
+                var c = mx.CompareTo(my);
+                if (c == 0)
+                {
+                    int cx = 0, cy = 0;
+                    for (; i+cx < midsX.Count && midsX[i+cx].CompareTo(mx) == 0 ; cx++);
+                    for (; j+cy < midsY.Count && midsY[j+cy].CompareTo(mx) == 0 ; cy++);
+                    total += cx*cy;
+                    i += cx;
+                    j += cy;
+                }
+                else if (c < 0)
+                {
+                    i++;
+                }
+                else
+                {
+                    j++;
+                }
+            }
+
             return total;
         }
-
         public class Tester : BaseSelfTester<DiamondsCount>
         {
             public override IEnumerable<TestSet> GetTestSets()
