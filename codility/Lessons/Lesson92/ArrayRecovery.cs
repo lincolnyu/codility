@@ -98,10 +98,12 @@ namespace codility.Lessons.Lesson92
             // B[n+1] > B[n] means A[n] = B[n+1]
             //               and A[n+1] > A[n]
             // B[n+1] = B[n] means A[n+1] <= A[n]
-            // B[n+1] < B[n] Then B[n+1] must be one B[x] that appeared before
+            // B[n+1] < B[n] Then B[n+1] must be one stair that appeared before
             //               up to the recent 0 or 0 (new minimal). 
-            //               Suppose it's B[k] and suppose the one just one step
-            //               above B[k] is x, then A[n+1] > B[k] and <= x
+            //               Suppose it's x suppose the one just one step
+            //               above B[k] is y, then A[n+1] > x and <= y
+            //               The search table should also be updated by having y 
+            //               and above removed (See line 160)
             const int modulo = 1000000007;
             var N = B.Length;
             var record = new int[N];
