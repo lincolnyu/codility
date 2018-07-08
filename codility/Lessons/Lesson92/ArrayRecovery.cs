@@ -153,6 +153,10 @@ namespace codility.Lessons.Lesson92
                     else
                     {
                         var ib = BinarySearch(record, rcsize, b);
+                        if (ib < 0)
+                        {
+                            return ib;// hack to debug
+                        }
                         var ib1 = ib + 1;
                         // A[i] > record[ib] && A[i] <= record[ib1]
 
