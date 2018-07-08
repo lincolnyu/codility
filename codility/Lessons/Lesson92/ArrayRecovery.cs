@@ -34,19 +34,66 @@ namespace codility.Lessons.Lesson92
             }
         }
 
-        private void MulNonincreasingCombinations(ref ulong total, int n, int m, int modulo)
+        private int GetInverse(int a, int n)
         {
-            // 'count' balls to be put in 'space' boxes
-            //(n+m-1)!/n!*(m-1)! ways?  See multinomial coefficent
-            // throw new NotImplementedException();
+            var t = 0;
+            var newt = 1;
+            var r = n;
+            var newr = a;
+            while (newr != 0)
+            {
+                var q = r / newr;
+                var oldt = t;
+                t = newt;
+                newt = oldt - q * newt;
+                var oldr = r;
+                r = newr;
+                newr = oldr - q * newr;
+            }
+            if (t < 0) t += n;
+            return t;
+        }
+
+        private int Combination2(int n, int m, int pm)
+        {
+            var num = 1;
+            var denom = 1;
+            var len = Math.Min(n - m, m);
+
+            for (var i = 0; i < len; i++)
+            {
+                num *= n - i;
+                denom *= 1 + i;
+                if (num >= pm) num -= pm;
+                if (denom >= pm) denom -= pm;
+            }
+
+            // denom * x = 1 mod pm
+            var inv = GetInverse(denom, pm);
+            return (int)(((long)num * inv) % pm);
+        }
+        private int Combination(int n, int m, int pm)
+        {
             var num = 1UL;
             var denom = 1UL;
-            for (ulong i = (ulong)(n + m - 1), j = (ulong)Math.Min(n, m - 1); j > 0; i--, j--)
+            var len = Math.Min(n - m, m);
+
+            for (var i = 0; i < len; i++)
             {
-                num *= i;
-                denom *= j;
+                num *= (ulong)(n - i);
+                denom *= (ulong)(1 + i);
             }
-            total *= num / denom;
+
+            return (int)((num / denom) % (ulong)pm);
+        }
+        private void MulNonincreasingCombinations(ref int total, int n, int m, int primeMod)
+        {
+            // n balls to be put in m boxes
+            //(n+m-1)!/n!*(m-1)! ways?  See stars (n) and bars (m-1) method
+            // throw new NotImplementedException();
+            var c = Combination((n + m - 1), n, primeMod);
+            total *= c;
+            total %= primeMod;
         }
 
         public int solution(int[] B, int M)
@@ -66,7 +113,7 @@ namespace codility.Lessons.Lesson92
             var eqCount = 1;
             var currMax = M; // <=
             var currBase = 0; // >
-            var total = 1UL;
+            var total = 1;
             for (var i = 1; i < N; i++)
             {
                 var b = B[i];
@@ -121,7 +168,7 @@ namespace codility.Lessons.Lesson92
 
             MulNonincreasingCombinations(ref total, eqCount, currMax - currBase, modulo);
 
-            return (int)(total % modulo);
+            return (total % modulo);
         }
 
         public class Tester : BaseSelfTester<ArrayRecovery>
