@@ -119,8 +119,8 @@ namespace codility
             //Test<TreeHeight.Tester>();
             //Test<ArrayInversionCount.Tester>();
             //Test<PolygonConcavityIndex.Tester>();
-
-            Test<ArrayRecovery.Tester>();
+            //Test<ArrayRecovery.Tester>();
+            Test<DiamondsCount.Tester>();
         }
     }
 }
