@@ -32,41 +32,43 @@ namespace codility.Lessons.Lesson92
         {
             var N = X.Length;
 
-            var points = Point.Load(X, Y).ToArray();
+            var midsX = new Point[N*N/2];
+            var midsY = new Point[N*N/2];
+            var px = 0;
+            var py = 0;
 
-            var midsX = new List<Point>();
-            var midsY = new List<Point>();
-
-            for (var i = 0; i < points.Length-1; i++)
+            for (var i = 0; i < N-1; i++)
             {
-                var pi = points[i];
-                for (var j = i+1; j < points.Length; j++)
+                var pix = X[i];
+                var piy = Y[i];
+                for (var j = i+1; j < N; j++)
                 {
-                    var pj = points[j];
-                    if (pi.Y == pj.Y)
+                    var pjx = X[j];
+                    var pjy = Y[j];
+                    if (piy == pjy)
                     {
-                        var sumx = pi.X + pj.X;
+                        var sumx = pix + pjx;
                         if (sumx %2 ==0)
                         {
-                            midsX.Add(new Point{X = sumx/2, Y = pi.Y});
+                            midsX[px++] = new Point{X = sumx/2, Y = piy};
                         }
                     }
-                    else if (pi.X == pj.X)
+                    else if (pix == pjx)
                     {
-                        var sumy = pi.Y + pj.Y;
+                        var sumy = piy + pjy;
                         if (sumy %2 ==0)
                         {
-                            midsY.Add(new Point{X = pi.X, Y = sumy/2});
+                            midsY[py++] = new Point{X = pix, Y = sumy/2};
                         }
                     }
                 }
             }
 
-            midsX.Sort();
-            midsY.Sort();
+            Array.Sort(midsX, 0, px);
+            Array.Sort(midsY, 0, py);
 
             var total = 0;
-            for (int i = 0, j = 0; i < midsX.Count && j < midsY.Count; )
+            for (int i = 0, j = 0; i < px && j < py; )
             {
                 var mx = midsX[i];
                 var my = midsY[j];
@@ -74,8 +76,8 @@ namespace codility.Lessons.Lesson92
                 if (c == 0)
                 {
                     int cx = 0, cy = 0;
-                    for (; i+cx < midsX.Count && midsX[i+cx].CompareTo(mx) == 0 ; cx++);
-                    for (; j+cy < midsY.Count && midsY[j+cy].CompareTo(mx) == 0 ; cy++);
+                    for (; i+cx < px && midsX[i+cx].CompareTo(mx) == 0 ; cx++);
+                    for (; j+cy < py && midsY[j+cy].CompareTo(mx) == 0 ; cy++);
                     total += cx*cy;
                     i += cx;
                     j += cy;
