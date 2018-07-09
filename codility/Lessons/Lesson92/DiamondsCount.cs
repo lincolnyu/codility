@@ -37,6 +37,33 @@ namespace codility.Lessons.Lesson92
             }
         }
 
+        void FibbInc(ref int i, Predicate<int> pred)
+        {
+            var a = 1;
+            var b = 1;
+            while (true)
+            {
+                i += b;
+                if (!pred(i))
+                {
+                    if (b == 1)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        i -= b;
+                        a = 1;
+                        b = 1;
+                        continue;
+                    }
+                }
+                var c = a + b;
+                a = b;
+                b = c;
+            }
+        }
+
         public int solution(int[] X, int[] Y)
         {
             var N = X.Length;
@@ -69,9 +96,9 @@ namespace codility.Lessons.Lesson92
             for (var i = 0; i < arrY.Length - 1; i++)
             {
                 var pi = arrY[i];
-                var jend = i+1;
+                var jend = i;
 
-                for (; jend < arrY.Length && arrY[jend].Y == pi.Y; jend++);
+                FibbInc(ref jend, t=>t < arrY.Length && arrY[t].Y == pi.Y);
                 if (jend > i+1)
                 {
                     var pbegin = px;
@@ -101,20 +128,19 @@ namespace codility.Lessons.Lesson92
                 var c = mx.CompareTo(my);
                 if (c == 0)
                 {
-                    int cx = 0, cy = 0;
-                    for (; i+cx < px && midsX[i+cx].CompareTo(mx) == 0 ; cx++);
-                    for (; j+cy < py && midsY[j+cy].CompareTo(mx) == 0 ; cy++);
-                    total += cx*cy;
-                    i += cx;
-                    j += cy;
+                    var oldi = i;
+                    var oldj = j;
+                    FibbInc(ref i, t=> t < px && midsX[t].CompareTo(mx) == 0);
+                    FibbInc(ref j, t=> t < py && midsY[t].CompareTo(mx) == 0);
+                    total += (i-oldi)*(j-oldj);
                 }
                 else if (c < 0)
                 {
-                    i++;
+                    FibbInc(ref i, t => t < px && midsX[t].CompareTo(my) < 0);
                 }
                 else
                 {
-                    j++;
+                    FibbInc(ref j, t => t < py && mx.CompareTo(midsY[t]) > 0);
                 }
             }
 
