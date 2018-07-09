@@ -1,13 +1,12 @@
 ﻿using codility.TestFramework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace codility.Lessons.Lesson92
 {
     class DiamondsCount : BaseTestee
     {
-        class Point :IComparable<Point>
+        struct Point :IComparable<Point>
         {
             public int X;
             public int Y;
@@ -19,12 +18,22 @@ namespace codility.Lessons.Lesson92
                 return X.CompareTo(other.X);
             }
 
-            public static IEnumerable<Point> Load(int[] X, int[] Y)
+            public static void Load(Point[] points, int[] X, int[] Y)
             {
                 for (var i = 0; i < X.Length; i++)
                 {
-                    yield return new Point{X = X[i], Y = Y[i]};
+                    points[i] = new Point{X = X[i], Y = Y[i]};
                 }
+            }
+        }
+
+        class XComp : IComparer<Point>
+        {
+            public int Compare(Point x, Point y)
+            {
+                var c = x.X.CompareTo(y.X);
+                if (c != 0) return c;
+                return x.Y.CompareTo(y.Y);
             }
         }
 
@@ -32,39 +41,56 @@ namespace codility.Lessons.Lesson92
         {
             var N = X.Length;
 
+            var arrX = new Point[N];
+            var arrY = new Point[N];
+            Point.Load(arrX, X, Y);
+            Point.Load(arrY, X, Y);
+            Array.Sort(arrX, new XComp());
+            Array.Sort(arrY);
+
             var midsX = new Point[N*N/2];
             var midsY = new Point[N*N/2];
             var px = 0;
             var py = 0;
 
-            for (var i = 0; i < N-1; i++)
+            for (var i = 0; i < arrX.Length - 1; i++)
             {
-                var pix = X[i];
-                var piy = Y[i];
-                for (var j = i+1; j < N; j++)
+                var pi = arrX[i];
+                for (var j = i+1; j < arrX.Length && arrX[j].X == pi.X; j++)
                 {
-                    var pjx = X[j];
-                    var pjy = Y[j];
-                    if (piy == pjy)
+                    var sumy = pi.Y + arrX[j].Y;
+                    if (sumy % 2 == 0)
                     {
-                        var sumx = pix + pjx;
-                        if (sumx %2 ==0)
-                        {
-                            midsX[px++] = new Point{X = sumx/2, Y = piy};
-                        }
-                    }
-                    else if (pix == pjx)
-                    {
-                        var sumy = piy + pjy;
-                        if (sumy %2 ==0)
-                        {
-                            midsY[py++] = new Point{X = pix, Y = sumy/2};
-                        }
+                        midsY[py++] = new Point{X = pi.X, Y = sumy/2};
                     }
                 }
             }
 
-            Array.Sort(midsX, 0, px);
+            for (var i = 0; i < arrY.Length - 1; i++)
+            {
+                var pi = arrY[i];
+                var jend = i+1;
+
+                for (; jend < arrY.Length && arrY[jend].Y == pi.Y; jend++);
+                if (jend > i+1)
+                {
+                    var pbegin = px;
+                    for ( ; i < jend - 1; i++)
+                    {
+                        pi = arrY[i];
+                        for (var j = i+1; j < jend; j++)
+                        {
+                            var sumx = pi.X + arrY[j].X;
+                            if (sumx % 2 == 0)
+                            {
+                                midsX[px++] = new Point{X = sumx/2, Y = pi.Y};
+                            }
+                        }
+                    }
+                    Array.Sort(midsX, pbegin, px-pbegin);
+                }
+            }
+
             Array.Sort(midsY, 0, py);
 
             var total = 0;
