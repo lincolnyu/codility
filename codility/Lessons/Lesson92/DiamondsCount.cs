@@ -6,13 +6,19 @@ namespace codility.Lessons.Lesson92
 {
     class DiamondsCount : BaseTestee
     {
-        class Point
+#if CLASS_POINT
+        class 
+#else
+        struct
+#endif
+        Point
         {
             public int X;
             public int Y;
+#if LINEARITY_CHECK && CLASS_POINT
             public int IX;
             public int IY;
-
+#endif
             public static void Load(Point[] points, int[] X, int[] Y)
             {
                 for (var i = 0; i < X.Length; i++)
@@ -42,8 +48,10 @@ namespace codility.Lessons.Lesson92
             }
         }
 
+#if LINEARITY_CHECK
         bool IsLinear(Point p1, Point p2)
             => Math.Abs(p2.IX - p1.IX) == Math.Abs(p2.IY - p1.IY);
+#endif
 
         void FibbInc(ref int i, Predicate<int> pred)
         {
@@ -88,11 +96,13 @@ namespace codility.Lessons.Lesson92
 
             Array.Sort(arrX, xcomp);
             Array.Sort(arrY, ycomp);
+#if LINEARITY_CHECK
             for (var i = 0; i < N; i++)
             {
                 arrX[i].IX = i;
                 arrY[i].IY = i;
             }
+#endif
 
             var midsX = new Point[N * N / 2];
             var midsY = new Point[N * N / 2];
@@ -108,6 +118,7 @@ namespace codility.Lessons.Lesson92
                 var jend = i;
 
                 FibbInc(ref jend, t => t < arrX.Length && arrX[t].X == pi.X);
+#if BOUNARY_EXCLUSION
                 if (arrX[i].X == arrX[0].X)
                 {
                     i = jend - 1;
@@ -117,6 +128,7 @@ namespace codility.Lessons.Lesson92
                 {
                     break;
                 }
+#endif
                 if (jend > i+1)
                 {
                     var pbegin = py;
@@ -126,7 +138,11 @@ namespace codility.Lessons.Lesson92
                         var parityi = pi.Y % 2;
                         for (var j = i + 1; j < jend; j++)
                         {
-                            if (arrX[j].Y % 2 == parityi && !IsLinear(arrX[j], arrX[i]))
+                            if (arrX[j].Y % 2 == parityi
+#if LINEARITY_CHECK
+                                && !IsLinear(arrX[j], arrX[i])
+#endif
+                                )
                             {
                                 midsY[py++] = new Point { X = pi.X, Y = (pi.Y + arrX[j].Y) / 2 };
                             }
@@ -145,6 +161,7 @@ namespace codility.Lessons.Lesson92
                 var jend = i;
 
                 FibbInc(ref jend, t => t < arrY.Length && arrY[t].Y == pi.Y);
+#if BOUNARY_EXCLUSION
                 if (arrY[i].Y == arrY[0].Y)
                 {
                     i = jend - 1;
@@ -154,6 +171,7 @@ namespace codility.Lessons.Lesson92
                 {
                     break;
                 }
+#endif
                 if (jend > i + 1)
                 {
                     var pbegin = px;
@@ -163,7 +181,11 @@ namespace codility.Lessons.Lesson92
                         var parityi = pi.X % 2;
                         for (var j = i + 1; j < jend; j++)
                         {
-                            if (arrY[j].X % 2 == parityi && !IsLinear(arrY[j], arrY[i]))
+                            if (arrY[j].X % 2 == parityi
+#if LINEARITY_CHECK
+                                && !IsLinear(arrY[j], arrY[i])
+#endif
+                                )
                             {
                                 midsX[px++] = new Point { X = (pi.X + arrY[j].X) / 2, Y = pi.Y };
                             }
