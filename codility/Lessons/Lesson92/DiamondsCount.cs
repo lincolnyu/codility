@@ -6,10 +6,12 @@ namespace codility.Lessons.Lesson92
 {
     class DiamondsCount : BaseTestee
     {
-        struct Point
+        class Point
         {
             public int X;
             public int Y;
+            public int IX;
+            public int IY;
 
             public static void Load(Point[] points, int[] X, int[] Y)
             {
@@ -39,6 +41,9 @@ namespace codility.Lessons.Lesson92
                 return x.X.CompareTo(y.X);
             }
         }
+
+        bool IsLinear(Point p1, Point p2)
+            => Math.Abs(p2.IX - p1.IX) == Math.Abs(p2.IY - p1.IY);
 
         void FibbInc(ref int i, Predicate<int> pred)
         {
@@ -76,14 +81,26 @@ namespace codility.Lessons.Lesson92
             var arrX = new Point[N];
             var arrY = new Point[N];
             Point.Load(arrX, X, Y);
-            Point.Load(arrY, X, Y);
+            for (var i = 0; i < N; i++)
+            {
+                arrY[i] = arrX[i];
+            }
+
             Array.Sort(arrX, xcomp);
             Array.Sort(arrY, ycomp);
+            for (var i = 0; i < N; i++)
+            {
+                arrX[i].IX = i;
+                arrY[i].IY = i;
+            }
 
             var midsX = new Point[N * N / 2];
             var midsY = new Point[N * N / 2];
             var px = 0;
             var py = 0;
+
+            var llx = new LinkedList<Tuple<int, int>>();
+            var lly = new LinkedList<Tuple<int, int>>();
 
             for (var i = 0; i < arrX.Length - 1; i++)
             {
@@ -91,60 +108,92 @@ namespace codility.Lessons.Lesson92
                 var jend = i;
 
                 FibbInc(ref jend, t => t < arrX.Length && arrX[t].X == pi.X);
+                if (arrX[i].X == arrX[0].X)
+                {
+                    i = jend - 1;
+                    continue;
+                }
+                if (arrX[i].X == arrX[arrX.Length - 1].X)
+                {
+                    break;
+                }
                 if (jend > i+1)
                 {
                     var pbegin = py;
                     for (; i < jend-1; i++)
                     {
                         pi = arrX[i];
+                        var parityi = pi.Y % 2;
                         for (var j = i + 1; j < jend; j++)
                         {
-                            var sumy = pi.Y + arrX[j].Y;
-                            if (sumy % 2 == 0)
+                            if (arrX[j].Y % 2 == parityi && !IsLinear(arrX[j], arrX[i]))
                             {
-                                midsY[py++] = new Point { X = pi.X, Y = sumy / 2 };
+                                midsY[py++] = new Point { X = pi.X, Y = (pi.Y + arrX[j].Y) / 2 };
                             }
                         }
                     }
-                    Array.Sort(midsY, pbegin, py - pbegin, xcomp);
+                    if (py > pbegin + 1)
+                    {
+                        lly.AddLast(new Tuple<int, int>(pbegin, py - pbegin));
+                    }
                 }
             }
-
+            
             for (var i = 0; i < arrY.Length - 1; i++)
             {
                 var pi = arrY[i];
                 var jend = i;
 
                 FibbInc(ref jend, t => t < arrY.Length && arrY[t].Y == pi.Y);
+                if (arrY[i].Y == arrY[0].Y)
+                {
+                    i = jend - 1;
+                    continue;
+                }
+                if (arrY[i].Y == arrY[arrY.Length - 1].Y)
+                {
+                    break;
+                }
                 if (jend > i + 1)
                 {
                     var pbegin = px;
                     for (; i < jend - 1; i++)
                     {
                         pi = arrY[i];
+                        var parityi = pi.X % 2;
                         for (var j = i + 1; j < jend; j++)
                         {
-                            var sumx = pi.X + arrY[j].X;
-                            if (sumx % 2 == 0)
+                            if (arrY[j].X % 2 == parityi && !IsLinear(arrY[j], arrY[i]))
                             {
-                                midsX[px++] = new Point { X = sumx / 2, Y = pi.Y };
+                                midsX[px++] = new Point { X = (pi.X + arrY[j].X) / 2, Y = pi.Y };
                             }
                         }
                     }
-                    Array.Sort(midsX, pbegin, px - pbegin, ycomp);
+                    if (px > pbegin + 1)
+                    {
+                        llx.AddLast(new Tuple<int, int>(pbegin, px - pbegin));
+                    }
                 }
-            }
+            }        
 
             IComparer<Point> sel;
             if (px < py)
             {
                 sel = xcomp;
                 Array.Sort(midsX, 0, px, xcomp);
+                foreach (var t in lly)
+                {
+                    Array.Sort(midsY, t.Item1, t.Item2, xcomp);
+                }
             }
             else
             {
                 sel = ycomp;
                 Array.Sort(midsY, 0, py, ycomp);
+                foreach(var t in llx)
+                {
+                    Array.Sort(midsX, t.Item1, t.Item2, xcomp);
+                }
             }
 
             var total = 0;
@@ -158,7 +207,7 @@ namespace codility.Lessons.Lesson92
                     var oldi = i;
                     var oldj = j;
                     FibbInc(ref i, t => t < px && sel.Compare(midsX[t], mx) == 0);
-                    FibbInc(ref j, t => t < py && sel.Compare(midsY[t], mx) == 0);
+                    FibbInc(ref j, t => t < py && sel.Compare(midsY[t], my) == 0);
                     total += (i - oldi) * (j - oldj);
                 }
                 else if (c < 0)
