@@ -37,6 +37,17 @@ namespace codility
             }
         }
 
+        static void Profile<TProfiler>() where
+            TProfiler : ISelfProfileAndShowResults, new()
+        {
+            var profiler = new TProfiler();
+            var rs = profiler.ProfileAndShowResults();
+            foreach (var r in rs)
+            {
+                Console.WriteLine(r);
+            }
+        }
+
         static void Debug<TTester, T>() where
             TTester : BaseSelfTester<T>, new()
             where T : ITestee, new()
@@ -120,7 +131,10 @@ namespace codility
             //Test<ArrayInversionCount.Tester>();
             //Test<PolygonConcavityIndex.Tester>();
             //Test<ArrayRecovery.Tester>();
-            Test<DiamondsCount.Tester>();
+            
+            
+            //Test<DiamondsCount.Tester>();
+            Profile<DiamondsCount.Profiler>();
         }
     }
 }

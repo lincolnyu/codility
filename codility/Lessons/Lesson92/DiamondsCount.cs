@@ -1,5 +1,6 @@
 ﻿using codility.TestFramework;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace codility.Lessons.Lesson92
@@ -251,6 +252,75 @@ namespace codility.Lessons.Lesson92
             {
                 yield return CreateInputSet(2, new[] { 1, 1, 2, 2, 2, 3, 3 }, new[] { 3, 4, 1, 3, 5, 3, 4 });
                 yield return CreateInputSet(0, new[] { 1, 2, 3, 3, 2, 1 }, new[] { 1, 1, 1, 2, 2, 2 });
+            }
+        }
+
+        public class Profiler : BaseSelfProfiler<DiamondsCount>
+        {
+            private IEnumerable<int> GenerateLine(int n, Random rand, int dyn = 5)
+            {
+                var c = 0;
+                for (var i = 0; i < n; i++)
+                {
+                    yield return c;
+                    var d = rand.Next(5) + 1;
+                    c += d;
+                }
+            }
+
+            private IEnumerable<(int, int)> GenerateSpotsLessHLine(int n, Random rand, int minx, int miny, int maxx, int maxy)
+            {
+                for (var i = 0; i < n; i++)
+                {
+                    var x = rand.Next(minx, maxx + 1);
+                    do
+                    {
+                        var y = rand.Next(miny, maxy + 1);
+                        if (y == 0) continue;
+                        yield return (x, y);
+                    } while (false);
+                }
+            }
+
+            (int[], int[]) ShuffleAndSplit(IList<(int, int)> src, Random rand, double shuffleRate = 0.5)
+            {
+                var n = src.Count;
+                var shuffleCount = (int)Math.Ceiling(n * shuffleRate);
+                var p = 0;
+                for (var i = 0; i < shuffleCount; i++)
+                {
+                    var d = rand.Next(n);
+                    var t = src[p];
+                    var dstp = (p + d)%n;
+                    src[p] = src[dstp];
+                    src[dstp] = t;
+                    p = dstp;
+                }
+                var x = new int[n];
+                var y = new int[n];
+                for (var i = 0; i < n; i++)
+                {
+                    x[i] = src[i].Item1;
+                    y[i] = src[i].Item2;
+                }
+                return (x, y);
+            }
+
+            public override IEnumerable<BaseTester.TestSet> GetProfilingTestSets()
+            {
+                const int lineCount = 1300;
+                const int spotsCount = 700;
+                var rand = new Random();
+                var lineMain = GenerateLine(lineCount, rand).ToArray();
+                var lineMax = lineMain[lineMain.Length-1];
+                var boxMinX = -10;
+                var boxMaxX = lineMax + 10;
+                var boxMinY = - 5;
+                var boxMaxY = 5;
+                var spots = GenerateSpotsLessHLine(spotsCount, rand, boxMinX, boxMinY, boxMaxX, boxMaxY);
+
+                var input = ShuffleAndSplit(lineMain.Select(x=>(x,0)).Concat(spots).ToArray(), rand);
+                yield return BaseTester.CreateInputSet(null, input.Item1, input.Item2);
             }
         }
     }

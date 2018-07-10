@@ -113,7 +113,7 @@ namespace codility.TestFramework
         }
 
 
-        protected TestSet CreateInputSet(object expected, params object[] inputs)
+        public static TestSet CreateInputSet(object expected, params object[] inputs)
         {
             return new TestSet
             {
