@@ -1,4 +1,6 @@
-﻿using codility.TestFramework;
+﻿#define WORM
+
+using codility.TestFramework;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -16,6 +18,9 @@ namespace codility.Lessons.Lesson92
         {
             public int X;
             public int Y;
+#if WORM
+            public int Count;
+#endif
 #if LINEARITY_CHECK && CLASS_POINT
             public int IX;
             public int IY;
@@ -81,6 +86,92 @@ namespace codility.Lessons.Lesson92
             }
         }
 
+        private IEnumerable<int> Worm(IList<Point> list, Func<Point, int> access,
+            int start, Predicate<int> pred)
+        {
+            var b = start;
+
+            var i = b;
+            var j = i+1;
+            var curr = 0;
+            var curr2 = 0;
+            bool found = false;
+            for (; pred(j); j++)
+            {
+                var vi = access(list[i]);
+                var vj = access(list[j]);
+                if (vi % 2 == vj % 2)
+                {
+                    curr2 = vi + vj;
+                    curr = curr2 / 2;
+                    found = true;
+                    yield return curr;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                if (j <= i + 2)
+                {
+                    yield break;
+                }
+                i++;
+                j = i + 1;
+                curr2 = access(list[i]) + access(list[j]);
+                curr = curr2 / 2;
+                yield return curr;
+            }
+
+            while (true)
+            {
+                var go = 0;
+                int a1 = 0;
+                if (pred(j + 1))
+                {
+                    go = 1;
+                    a1 = access(list[j + 1]) - access(list[j]);
+                }
+                if (i + 1 < j && (go == 0 || access(list[i + 1])-access(list[i]) < a1))
+                {
+                    go = 2;
+                }
+
+                if (go==1)
+                {
+                    j++;
+                    var di = 0;
+                    System.Diagnostics.Debug.Assert(i >= b && access(list[j]) + access(list[i]) >= curr2);
+                    FibbInc(ref di, x => i >= b + x && access(list[j]) + access(list[i - x]) >= curr2);
+                    di--;
+                    i -= di;
+                }
+                else if (go==2)
+                {
+                    i++;
+                    b = i;
+                    var dj = 0;
+                    System.Diagnostics.Debug.Assert(j > i && access(list[j]) + access(list[i]) >= curr2);
+                    FibbInc(ref dj, x => j > i + x && access(list[j - x]) + access(list[i]) >= curr2);
+                    dj--;
+                    j -= dj;
+                }
+                else
+                {
+                    break;
+                }
+
+                var vi = access(list[i]);
+                var vj = access(list[j]);
+                if (vi % 2 == vj % 2)
+                {
+                    curr2 = vi + vj;
+                    curr = curr2 / 2;
+                    yield return curr;
+                }
+            }
+        }
+
         public int solution(int[] X, int[] Y)
         {
             var xcomp = new XComp();
@@ -110,14 +201,53 @@ namespace codility.Lessons.Lesson92
             var px = 0;
             var py = 0;
 
+#if !WORM
             var llx = new LinkedList<Tuple<int, int>>();
             var lly = new LinkedList<Tuple<int, int>>();
-
-            for (var i = 0; i < arrX.Length - 1; i++)
+#endif
+            for (var i = 0; i < arrX.Length - 1;
+#if !WORM
+                i++
+#endif
+                )
             {
                 var pi = arrX[i];
-                var jend = i;
 
+#if WORM
+                var mids = Worm(arrX, t=>t.Y, i,
+                    t =>
+                    {
+                        var res = t < arrX.Length && arrX[t].X == pi.X;
+                        if (!res)
+                        {
+                            i = t;
+                        }
+                        return res;
+                    });
+                int? last = null;
+                var count = 0;
+                foreach (var mid in mids)
+                {
+                    if (last.HasValue && mid == last.Value)
+                    {
+                        count++;
+                    }
+                    else
+                    {
+                        if (count > 0)
+                        {
+                            midsY[py++] = new Point { X = pi.X, Y = last.Value, Count = count };
+                        }
+                        last = mid;
+                        count = 1;
+                    }
+                }
+                if (count > 0)
+                {
+                    midsY[py++] = new Point { X = pi.X, Y = last.Value, Count = count };
+                }
+#else
+                var jend = i;
                 FibbInc(ref jend, t => t < arrX.Length && arrX[t].X == pi.X);
 #if BOUNARY_EXCLUSION
                 if (arrX[i].X == arrX[0].X)
@@ -154,11 +284,50 @@ namespace codility.Lessons.Lesson92
                         lly.AddLast(new Tuple<int, int>(pbegin, py - pbegin));
                     }
                 }
+#endif
             }
-            
-            for (var i = 0; i < arrY.Length - 1; i++)
+
+            for (var i = 0; i < arrY.Length - 1;
+#if !WORM
+                i++
+#endif
+                )
             {
                 var pi = arrY[i];
+
+#if WORM
+                var mids = Worm(arrY, t => t.X, i, t =>
+                      {
+                          var res = t < arrX.Length && arrY[t].Y == pi.Y;
+                          if (!res)
+                          {
+                              i = t;
+                          }
+                          return res;
+                      });
+                int? last = null;
+                var count = 0;
+                foreach (var mid in mids)
+                {
+                    if (last.HasValue && mid == last.Value)
+                    {
+                        count++;
+                    }
+                    else
+                    {
+                        if (count > 0)
+                        {
+                            midsX[px++] = new Point { X = last.Value, Y = pi.Y, Count = count };
+                        }
+                        last = mid;
+                        count = 1;
+                    }
+                }
+                if (count > 0)
+                {
+                    midsX[px++] = new Point { X = last.Value, Y = pi.Y, Count = count };
+                }
+#else
                 var jend = i;
 
                 FibbInc(ref jend, t => t < arrY.Length && arrY[t].Y == pi.Y);
@@ -197,6 +366,7 @@ namespace codility.Lessons.Lesson92
                         llx.AddLast(new Tuple<int, int>(pbegin, px - pbegin));
                     }
                 }
+#endif
             }        
 
             IComparer<Point> sel;
@@ -204,19 +374,23 @@ namespace codility.Lessons.Lesson92
             {
                 sel = xcomp;
                 Array.Sort(midsX, 0, px, xcomp);
+#if !WORM
                 foreach (var t in lly)
                 {
                     Array.Sort(midsY, t.Item1, t.Item2, xcomp);
                 }
+#endif
             }
             else
             {
                 sel = ycomp;
                 Array.Sort(midsY, 0, py, ycomp);
+#if !WORM
                 foreach(var t in llx)
                 {
                     Array.Sort(midsX, t.Item1, t.Item2, xcomp);
                 }
+#endif
             }
 
             var total = 0;
@@ -225,13 +399,21 @@ namespace codility.Lessons.Lesson92
                 var mx = midsX[i];
                 var my = midsY[j];
                 var c = sel.Compare(mx, my);
+
                 if (c == 0)
                 {
+#if WORM
+                    total += mx.Count * my.Count;
+                    i++;
+                    j++;
+#else
+
                     var oldi = i;
                     var oldj = j;
                     FibbInc(ref i, t => t < px && sel.Compare(midsX[t], mx) == 0);
                     FibbInc(ref j, t => t < py && sel.Compare(midsY[t], my) == 0);
                     total += (i - oldi) * (j - oldj);
+#endif
                 }
                 else if (c < 0)
                 {
@@ -310,7 +492,7 @@ namespace codility.Lessons.Lesson92
             {
                 const int lineCount = 1300;
                 const int spotsCount = 700;
-                var rand = new Random();
+                var rand = new Random(123);
                 var lineMain = GenerateLine(lineCount, rand).ToArray();
                 var lineMax = lineMain[lineMain.Length-1];
                 var boxMinX = -10;

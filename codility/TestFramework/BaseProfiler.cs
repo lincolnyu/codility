@@ -28,7 +28,7 @@ namespace codility.TestFramework
             var i = 1;
             foreach (var pr in prs)
             {
-                yield return $"Test {i++} took {pr.Elapse.TotalSeconds} second(s).";
+                yield return $"Test {i++} (returning {pr.Actual}) took {pr.Elapse.TotalSeconds} second(s).";
             }
         }
 
