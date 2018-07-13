@@ -9,7 +9,7 @@ namespace codility.TestFramework
     {
         IEnumerable<TestSet> GetProfilingTestSets();
 
-        IEnumerable<string> ProfileAndShowResults(TTestee testee);
+        IEnumerable<string> ProfileAndShowResults(TTestee testee, int count = 5);
 
     }
 
@@ -22,9 +22,9 @@ namespace codility.TestFramework
     {
         public abstract IEnumerable<TestSet> GetProfilingTestSets();
 
-        public  IEnumerable<string> ProfileAndShowResults(TTestee testee)
+        public  IEnumerable<string> ProfileAndShowResults(TTestee testee, int count = 5)
         {
-            var prs = Profile(testee);
+            var prs = Profile(testee, count);
             var i = 1;
             foreach (var pr in prs)
             {
@@ -32,20 +32,28 @@ namespace codility.TestFramework
             }
         }
 
-        public virtual IEnumerable<TestResult> Profile(ITestee testee)
+        public virtual IEnumerable<TestResult> Profile(ITestee testee, int count = 5)
         {
             var testsets = GetProfilingTestSets();
             foreach (var testset in testsets)
             {
-                var start = DateTime.UtcNow;
-                var actual = testee.Run(testset.Input);
-                var end = DateTime.UtcNow;
+                object actual = null;
+                TimeSpan total = TimeSpan.Zero;
+                for (var i = 0; i < count; i++)
+                {
+                    var start = DateTime.UtcNow;
+                    actual = testee.Run(testset.Input);
+                    var end = DateTime.UtcNow;
+                    var diff = end-start;
+                    total += diff;
+                }
+                total /= count;
                 var tr = new TestResult
                 {
                     TestSet = testset,
                     Actual = actual,
                     Passed = false, // not cared
-                    Elapse = end - start
+                    Elapse = total
                 };
                 yield return tr;
             }
