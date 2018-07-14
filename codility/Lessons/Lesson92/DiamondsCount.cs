@@ -1,11 +1,20 @@
-﻿using codility.TestFramework;
+﻿#define TEST
+#define FIBB_FIND_END
+
+#if TEST
+using codility.TestFramework;
+#endif
 using System;
 using System.Linq;
 using System.Collections.Generic;
 
+#if TEST
 namespace codility.Lessons.Lesson92
 {
     class DiamondsCount : BaseTestee
+#else
+    class Solution
+#endif
     {
 #if CLASS_POINT
         class 
@@ -112,8 +121,13 @@ namespace codility.Lessons.Lesson92
 
             var llx = new LinkedList<Tuple<int, int>>();
             var lly = new LinkedList<Tuple<int, int>>();
-            for (var i = 0; i < arrX.Length - 1; i++)
+            for (var i = 0; i < arrX.Length - 1;
+#if FIBB_FIND_END
+                i++
+#endif
+                )
             {
+#if FIBB_FIND_END
                 var pi = arrX[i];
                 var jend = i;
                 FibbInc(ref jend, t => t < arrX.Length && arrX[t].X == pi.X);
@@ -152,13 +166,38 @@ namespace codility.Lessons.Lesson92
                         lly.AddLast(new Tuple<int, int>(pbegin, py - pbegin));
                     }
                 }
+#else
+                var istart = i;
+                var pbegin = py;
+                for (; i < arrX.Length && arrX[i].X == arrX[istart].X; i++)
+                {
+                    var pi = arrX[i];
+                    var parityi = pi.Y % 2;
+                    for (var j = i + 1; j < arrX.Length && arrX[j].X == arrX[i].X; j++)
+                    {
+                        if (parityi == arrX[j].Y % 2)
+                        {
+                            midsY[py++] = new Point { X = pi.X, Y = (pi.Y + arrX[j].Y) / 2 };
+                        }
+                    }
+                }
+                if (py > pbegin + 1)
+                {
+                    lly.AddLast(new Tuple<int, int>(pbegin, py - pbegin));
+                }
+#endif
             }
 
-            for (var i = 0; i < arrY.Length - 1; i++)
+            for (var i = 0; i < arrY.Length - 1;
+#if FIBB_FIND_END
+                i++
+#endif
+                )
             {
+
+#if FIBB_FIND_END
                 var pi = arrY[i];
                 var jend = i;
-
                 FibbInc(ref jend, t => t < arrY.Length && arrY[t].Y == pi.Y);
 #if BOUNARY_EXCLUSION
                 if (arrY[i].Y == arrY[0].Y)
@@ -195,7 +234,27 @@ namespace codility.Lessons.Lesson92
                         llx.AddLast(new Tuple<int, int>(pbegin, px - pbegin));
                     }
                 }
-            }        
+#else
+                var istart = i;
+                var pbegin = px;
+                for (; i < arrY.Length && arrY[i].Y == arrY[istart].Y; i++)
+                {
+                    var pi = arrY[i];
+                    var parityi = pi.X % 2;
+                    for (var j = i + 1; j < arrY.Length && arrY[j].Y == arrY[i].Y; j++)
+                    {
+                        if (arrY[j].X % 2 == parityi)
+                        {
+                            midsX[px++] = new Point { X = (pi.X + arrY[j].X) / 2, Y = pi.Y };
+                        }
+                    }
+                }
+                if (px > pbegin + 1)
+                {
+                    llx.AddLast(new Tuple<int, int>(pbegin, px - pbegin));
+                }
+#endif
+            }
 
             IComparer<Point> sel;
             if (px < py)
@@ -204,7 +263,7 @@ namespace codility.Lessons.Lesson92
                 Array.Sort(midsX, 0, px, xcomp);
                 foreach (var t in lly)
                 {
-                    Array.Sort(midsY, t.Item1, t.Item2, xcomp);
+                    Array.Sort(midsY, t.Item1, t.Item2, ycomp);
                 }
             }
             else
@@ -244,6 +303,8 @@ namespace codility.Lessons.Lesson92
 
             return total;
         }
+
+#if TEST
 
         public class Tester : BaseSelfTester<DiamondsCount>
         {
@@ -322,5 +383,8 @@ namespace codility.Lessons.Lesson92
                 yield return BaseTester.CreateInputSet(null, input.Item1, input.Item2);
             }
         }
+#endif
     }
+#if TEST
 }
+#endif

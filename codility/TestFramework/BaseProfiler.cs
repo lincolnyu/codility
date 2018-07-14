@@ -5,11 +5,16 @@ namespace codility.TestFramework
     using System;
     using static BaseTester;
 
+    public static class Constants
+    {
+        public const int DefaultRepetitionCount = 10;
+    }
+
     public interface IProfiler<TTestee> where TTestee : ITestee
     {
         IEnumerable<TestSet> GetProfilingTestSets();
 
-        IEnumerable<string> ProfileAndShowResults(TTestee testee, int count = 5);
+        IEnumerable<string> ProfileAndShowResults(TTestee testee, int count = Constants.DefaultRepetitionCount);
 
     }
 
@@ -22,7 +27,7 @@ namespace codility.TestFramework
     {
         public abstract IEnumerable<TestSet> GetProfilingTestSets();
 
-        public  IEnumerable<string> ProfileAndShowResults(TTestee testee, int count = 5)
+        public  IEnumerable<string> ProfileAndShowResults(TTestee testee, int count = Constants.DefaultRepetitionCount)
         {
             var prs = Profile(testee, count);
             var i = 1;
@@ -32,7 +37,7 @@ namespace codility.TestFramework
             }
         }
 
-        public virtual IEnumerable<TestResult> Profile(ITestee testee, int count = 5)
+        public virtual IEnumerable<TestResult> Profile(ITestee testee, int count = Constants.DefaultRepetitionCount)
         {
             var testsets = GetProfilingTestSets();
             foreach (var testset in testsets)
