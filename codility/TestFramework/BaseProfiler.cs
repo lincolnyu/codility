@@ -20,7 +20,7 @@ namespace codility.TestFramework
 
     public interface ISelfProfileAndShowResults
     {
-        IEnumerable<string> ProfileAndShowResults();
+        IEnumerable<string> ProfileAndShowResults(int count = Constants.DefaultRepetitionCount);
     }
 
     public abstract class BaseProfiler<TTestee> : IProfiler<TTestee> where TTestee : ITestee
@@ -69,7 +69,7 @@ namespace codility.TestFramework
     {
         TTestee _testee = new TTestee();
         
-        public virtual IEnumerable<string> ProfileAndShowResults()
-            => ProfileAndShowResults(_testee);
+        public virtual IEnumerable<string> ProfileAndShowResults(int count = Constants.DefaultRepetitionCount)
+            => ProfileAndShowResults(_testee, count);
     }
 }
