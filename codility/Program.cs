@@ -117,7 +117,7 @@ namespace codility
             //Test<LongestPassword.Tester>();
             //Test<FloodDepth.Tester>();
 
-            //Test<SlalomSkiing.Tester>();
+            Test<SlalomSkiing.Tester>();
 
             //Test<DwarfsRafting.Tester>();
             //Test<RectangleBuilderGreaterArea.Tester>();
@@ -133,7 +133,7 @@ namespace codility
             //Test<ArrayRecovery.Tester>();
             
             
-            Test<DiamondsCount.Tester>();
+            //Test<DiamondsCount.Tester>();
             //Profile<DiamondsCount.Profiler>();
         }
     }
