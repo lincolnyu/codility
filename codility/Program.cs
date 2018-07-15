@@ -133,8 +133,8 @@ namespace codility
             //Test<ArrayRecovery.Tester>();
             
             
-            //Test<DiamondsCount.Tester>();
-            Profile<DiamondsCount.Profiler>();
+            Test<DiamondsCount.Tester>();
+            //Profile<DiamondsCount.Profiler>();
         }
     }
 }

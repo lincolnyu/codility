@@ -90,6 +90,7 @@ namespace codility.Lessons.Lesson92
             }
         }
 
+#if WITH_NO_ASSUMPTION
         public int solution(int[] X, int[] Y)
         {
             var xcomp = new XComp();
@@ -303,6 +304,68 @@ namespace codility.Lessons.Lesson92
 
             return total;
         }
+#else
+        public int solution(int[] X, int[] Y)
+        {
+            var N = X.Length;
+            var map = new int[N, N];
+            var arrX = new Point[N];
+            var arrY = new Point[N];
+            Point.Load(arrX, X, Y);
+            for (var i = 0; i < N; i++)
+            {
+                arrY[i] = arrX[i];
+            }
+
+            var xcomp = new XComp();
+            var ycomp = new YComp();
+            Array.Sort(arrX, xcomp);
+            Array.Sort(arrY, ycomp);
+
+            for (var i = 0; i < N; )
+            {
+                var istart = i;
+                for (; i < N && arrX[i].X == arrX[istart].X; i++)
+                {
+                    var pi = arrX[i];
+                    var parityi = pi.Y % 2;
+                    for (var j = i + 1; j < N && arrX[j].X == arrX[i].X; j++)
+                    {
+                        if (arrX[j].Y % 2 == parityi)
+                        {
+                            var x = pi.X;
+                            var y = (pi.Y + arrX[j].Y) / 2;
+                            map[x, y]++;
+                        }
+                    }
+                }
+            }
+
+            var total = 0;
+            for (var i = 0; i < N; )
+            {
+                var istart = i;
+                for (; i < N && arrY[i].Y == arrY[istart].Y; i++)
+                {
+                    var pi = arrY[i];
+                    var paritxi = pi.X % 2;
+                    for (var j = i + 1; j < N && arrY[j].Y == arrY[i].Y; j++)
+                    {
+                        if (arrY[j].X%2==paritxi)
+                        {
+                            var x = (pi.X + arrY[j].X) / 2;
+                            var y = pi.Y;
+                            if (map[x, y] > 0)
+                            {
+                                total += map[x, y];
+                            }
+                        }
+                    }
+                }
+            }
+            return total;
+        }
+#endif
 
 #if TEST
 
