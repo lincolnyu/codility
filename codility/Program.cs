@@ -37,11 +37,11 @@ namespace codility
             }
         }
 
-        static void Profile<TProfiler>() where
+        static void Profile<TProfiler>(int count = Constants.DefaultRepetitionCount) where
             TProfiler : ISelfProfileAndShowResults, new()
         {
             var profiler = new TProfiler();
-            var rs = profiler.ProfileAndShowResults();
+            var rs = profiler.ProfileAndShowResults(count);
             foreach (var r in rs)
             {
                 Console.WriteLine(r);
@@ -117,7 +117,8 @@ namespace codility
             //Test<LongestPassword.Tester>();
             //Test<FloodDepth.Tester>();
 
-            Test<SlalomSkiing.Tester>();
+            //Test<SlalomSkiing.Tester>();
+            Profile<SlalomSkiing.Profiler>(2);
 
             //Test<DwarfsRafting.Tester>();
             //Test<RectangleBuilderGreaterArea.Tester>();

@@ -2,6 +2,7 @@
 #define NEW_IMPLEMENTATION
 using System.Linq;
 using System;
+using codility.Helpers;
 
 #if TEST
 using System.Collections.Generic;
@@ -309,6 +310,17 @@ class Solution
             {
                 yield return CreateSingleInputSet(new[] { 15, 13, 5, 7, 4, 10, 12, 8, 2, 11, 6, 9, 3 }, 8);
                 yield return CreateSingleInputSet(new[] { 1, 5 }, 2);
+            }
+        }
+
+        public class Profiler : BaseSelfProfiler<SlalomSkiing>
+        {
+            public override IEnumerable<BaseTester.TestSet> GetProfilingTestSets()
+            {
+                const int size = 32768;
+                var rand = new Random(123);
+                var seq = rand.GenerateRandomSequence(size);
+                yield return BaseTester.CreateInputSet(null, seq);
             }
         }
     }
