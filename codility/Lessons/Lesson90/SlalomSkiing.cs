@@ -108,6 +108,7 @@ class Solution
                 if (!Allowed(type)) continue;
                 var maxPasses = 0;
                 for (var j = p - 1; j >= maxPasses; j--)
+<<<<<<< HEAD
                 {
                     var aj = A[j];
                     if (a.CompareTo(aj) == badcomp) continue;
@@ -121,6 +122,21 @@ class Solution
                 }
                 if (targetTurns > 0)
                 {
+=======
+                {
+                    var aj = A[j];
+                    if (a.CompareTo(aj) == badcomp) continue;
+                    var solj = dp[j][type];
+                    if (solj == null) continue;
+                    if (solj.Passes > maxPasses)
+                    {
+                        maxPasses = solj.Passes;
+                        dp[p][type] = solj.Follow();
+                    }
+                }
+                if (targetTurns > 0)
+                {
+>>>>>>> 25d53787cd726a1218d9d4ecd41b8cef5fca42c3
                     var type2 = Track.GetTypeIndex(1 - dir, targetTurns - 1);
                     for (var j = p - 1; j >= maxPasses; j--)
                     {
