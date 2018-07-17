@@ -1,6 +1,7 @@
 ﻿#define TEST
-
+#define NEW_IMPLEMENTATION
 using System.Linq;
+using System;
 
 #if TEST
 using System.Collections.Generic;
@@ -12,6 +13,166 @@ namespace codility.Lessons.Lesson90
 class Solution
 #endif
 {
+#if NEW_IMPLEMENTATION
+        class Property : IComparable<Property>
+        {
+            public int XPos;
+            public int YPos;
+
+            public bool Done;
+
+            public int?[] Candidates = new int?[3];
+            public int[] Max = new int[3];
+
+            public int? One
+            {
+                get => Candidates[0]; 
+                set => Candidates[0] = value; 
+            }
+            public int? Two
+            {
+                get => Candidates[1];
+                set => Candidates[1] = value;
+            }
+            public int? Three
+            {
+                get => Candidates[2];
+                set => Candidates[2] = value;
+            }
+
+            public int MaxOneY
+            {
+                get => Max[0];
+                set => Max[0] = value;
+            }
+            public int MaxTwoY
+            {
+                get => Max[1];
+                set => Max[1] = value;
+            }
+            public int MaxThreeY
+            {
+                get => Max[2];
+                set => Max[2] = value;
+            }
+
+            public int CompareTo(Property other)
+                => XPos.CompareTo(other.XPos);
+        }
+
+        public int solution(int[] A)
+        {
+
+            var N = A.Length;
+            var props = A.Select(x => new Property { XPos = x }).ToArray();
+            for (var i = 0; i <N; i++)
+            {
+                props[i].YPos = i;
+            }
+            Array.Sort(props);
+
+            var aindex = new int[N];
+            for (var i = 0; i < N; i++)
+            {
+                aindex[props[i].YPos] = i;
+            }
+
+            Func<int, Property> getprop = y => props[aindex[y]];
+            Func<Property, int, int> getmax = (prop, comp) =>
+                getprop(prop.Max[comp]).Candidates[comp].Value;
+            Func<int, int, int> dist = (ya, yb) =>
+            {
+                var ia = aindex[ya];
+                var ib = aindex[yb];
+                var total = 0;
+                for (var i = ia + 1; i < ib; i++)
+                {
+                    if (!props[i].Done)
+                    {
+                        total++;
+                    }
+                }
+                return total;
+            };
+
+            var first = getprop(0);
+            first.One = first.Two = first.Three = 1;
+            first.MaxOneY = first.MaxTwoY = first.MaxThreeY = 0;
+
+            for (var i = 1; i < N; i++)
+            {
+                var a = A[i];
+                var target = new Property { XPos = a };
+                var index = aindex[i];
+                var prop = props[index];
+
+                var lastprop = getprop(i - 1);
+                var maxone = getmax(lastprop, 0);
+
+                if (a > A[lastprop.MaxOneY])
+                {
+                    prop.One = maxone + 1;
+                    prop.MaxOneY = i;
+                }
+                else
+                {
+                    var maxonex = A[lastprop.MaxOneY];
+                    // uncomputed items between a and maxonex
+                    var d = dist(i, lastprop.MaxOneY);
+                    var max = 0;
+                    for (var j = i - 1; j + 1 > max; j--)
+                    {
+                        var p = getprop(j);
+                        if (a > p.XPos && p.One.HasValue && p.One + 1 + d > maxone
+                            && p.One + 1 > max)
+                        {
+                            max = p.One.Value + 1;
+                        }
+                    }
+                    if (max > 0)
+                    {
+                        prop.One = max;
+                        if (max > maxonex)
+                        {
+                            prop.MaxOneY = i;
+                        }
+                        else
+                        {
+                            prop.MaxOneY = lastprop.MaxOneY;
+                        }
+                    }
+                }
+
+                var maxtwo = getmax(lastprop, 1);
+                if (a < A[lastprop.MaxTwoY])
+                {
+                    prop.Two = maxtwo + 1;
+                    prop.MaxTwoY = i;
+                }
+                else
+                {
+                    // TODO ...
+                }
+
+                var maxthree = getmax(lastprop, 2);
+                if (a > A[lastprop.MaxThreeY])
+                {
+                    prop.Three = maxthree + 1;
+                    prop.MaxThreeY = i;
+                }
+                else
+                {
+                    // TODO...
+                }
+
+                prop.Done = true;
+            }
+
+            var endprop = props[aindex[N - 1]];
+            return Enumerable.Range(0, 3).Select(c => getmax(endprop, c)).Max();
+
+        }
+#else
     const int NumTypes = 6;
 
     class Track
@@ -136,8 +297,9 @@ class Solution
             }
         }
     }
-#if TEST
+#endif
 
+#if TEST
         public object Run(params object[] args)
             => solution((int[])args[0]);
 
