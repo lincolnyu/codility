@@ -70,7 +70,7 @@ class Solution
                     }
                     else if (c1?.ChildrenHasValue == true)
                     {
-                        p = c1;
+                        p = c1.Children[d];
                     }
                     else if (c1?.HasValue == true)
                     {
@@ -112,7 +112,7 @@ class Solution
 
                 var p1 = this;
                 var p2 = p1.Parent; 
-                for (; p2 == null; p2 = p2.Parent)
+                for (; p2 != null; p2 = p2.Parent)
                 {
                     if (p2.Children[1-d] == p1)
                     {
@@ -133,13 +133,13 @@ class Solution
 
             public void Add()
             {
-                var prev = FindChildNeighbour(0);
+                var prev = FindNeighbour(0);
                 if (prev != null)
                 {
                     var next = prev.Next;
                     prev.Next = this;
-                    this.Prev = prev;
-                    this.Next = next;
+                    Prev = prev;
+                    Next = next;
                     if (next != null)
                     {
                         next.Prev = this;
@@ -147,11 +147,11 @@ class Solution
                 }
                 else
                 {
-                    var next = FindChildNeighbour(1);
+                    var next = FindNeighbour(1);
                     if (next != null)
                     {
                         next.Prev = this;
-                        this.Next = next;
+                        Next = next;
                     }
                 }
             }
@@ -179,8 +179,9 @@ class Solution
             var propfirst = props[ytoprop[0]];
             propfirst.SetMax(1, 1, 1);
 
-            var max0 = 1;
-            var max1 = 1;
+            var global_max0 = 1;
+            var global_max1 = 1;
+            var global_max2 = 1;
 
             for (var i = 1; i < N; i++)
             {
@@ -188,68 +189,80 @@ class Solution
 
                 prop.Add();
 
+                int max0;
+                int max1;
+                int max2;
+
                 // \
                 if (prop.Prev != null)
                 {
-                    prop.Max[0] = prop.Prev.Max[0] + 1;
+                    max0 = prop.Prev.Max[0] + 1;
                 }
                 else
                 {
-                    prop.Max[0] = 1;
+                    max0 = 1;
                 }
-               
-                if (prop.Max[0] > max0)
-                {
-                    max0 = prop.Max[0];
-                }
-
+              
                 // \/
                 if (prop.Next != null)
                 {
-                    var cand1 = prop.Next.Max[1] + 1;
-                    var cand2 = max0 + 1;
-                    prop.Max[1] = Math.Max(cand1, cand2);
+                    max1 = prop.Next.Max[1] + 1;
                 }
                 else
                 {
-                    prop.Max[1] = 1;
+                    max1 = 1;
+                }
+                if (max1 < global_max0 + 1)
+                {
+                    max1 = global_max0 + 1;
                 }
                
-                if (prop.Max[1] > max1)
-                {
-                    max1 = prop.Max[1];
-                }
-
                 // \/\
                 if (prop.Prev != null)
                 {
-                    var cand1 = prop.Prev.Max[2] + 1;
-                    var cand2 = max1 + 1;
-                    prop.Max[1] = Math.Max(cand1, cand2);
+                    max2 = prop.Prev.Max[2] + 1;
                 }
                 else
                 {
-                    prop.Max[2] = 1;
+                    max2 = 1;
+                }
+                if (max2 < global_max1 + 1)
+                {
+                    max2 = global_max1 + 1;
                 }
 
-                if (i < N-1)
+                prop.SetMax(max0, max1, max2);
+
+                if (i < N - 1)
                 {
-                    for (var p = prop.Prev; p != null && p.Max[1] < prop.Max[1]; p = p.Prev)
+                    for (var p = prop.Next; p != null && p.Max[0] < max0; p = p.Next)
                     {
-                        p.Max[1] = prop.Max[1];
-                        p.Max[2] = prop.Max[2];
+                        p.Max[0] = max0;
                     }
-                    for (var p = prop.Next; p != null && p.Max[0] < prop.Max[0]; p = p.Next)
+                    for (var p = prop.Prev; p != null && p.Max[1] < max1; p = p.Prev)
                     {
-                        p.Max[0] = prop.Max[0];
+                        p.Max[1] = max1;
+                    }
+                    for (var p = prop.Next; p != null && p.Max[2] < max2; p = p.Next)
+                    {
+                        p.Max[2] = max2;
                     }
                 }
-                else
+
+                if (max0 > global_max0)
                 {
-                    return prop.Max.Max();
+                    global_max0 = max0;
+                }
+                if (max1 > global_max1)
+                {
+                    global_max1 = max1;
+                }
+                if (max2 > global_max2)
+                {
+                    global_max2 = max2;
                 }
             }
-            return 0;
+            return Math.Max(Math.Max(global_max0, global_max1), global_max2);
         }
 
         private Node Treeize(Node[] props, int start, int len)
@@ -264,7 +277,7 @@ class Solution
             var root = props[start + m];
 
             root.Left = Treeize(props, start, m);
-            root.Right = Treeize(props, start + m + 1, len - start - m - 1);
+            root.Right = Treeize(props, start + m + 1, len - m - 1);
             if (root.Left != null)
             {
                 root.Left.Parent = root;
@@ -419,7 +432,7 @@ class Solution
         {
             public override IEnumerable<BaseTester.TestSet> GetProfilingTestSets()
             {
-                const int size = 32768;
+                const int size = 16000;
                 var rand = new Random(123);
                 var seq = rand.GenerateRandomSequence(size);
                 yield return BaseTester.CreateInputSet(null, seq);
