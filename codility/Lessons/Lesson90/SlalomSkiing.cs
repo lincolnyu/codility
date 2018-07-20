@@ -15,163 +15,265 @@ class Solution
 #endif
 {
 #if NEW_IMPLEMENTATION
-        class Property : IComparable<Property>
+        class Node : IComparable<Node>
         {
-            public int XPos;
-            public int YPos;
+            public int XPos { get; set; }
+            public int YPos { get; set; }
 
-            public bool Done;
-
-            public int?[] Candidates = new int?[3];
-            public int[] Max = new int[3];
-
-            public int? One
-            {
-                get => Candidates[0]; 
-                set => Candidates[0] = value; 
-            }
-            public int? Two
-            {
-                get => Candidates[1];
-                set => Candidates[1] = value;
-            }
-            public int? Three
-            {
-                get => Candidates[2];
-                set => Candidates[2] = value;
-            }
-
-            public int MaxOneY
-            {
-                get => Max[0];
-                set => Max[0] = value;
-            }
-            public int MaxTwoY
-            {
-                get => Max[1];
-                set => Max[1] = value;
-            }
-            public int MaxThreeY
-            {
-                get => Max[2];
-                set => Max[2] = value;
-            }
-
-            public int CompareTo(Property other)
+            public int CompareTo(Node other)
                 => XPos.CompareTo(other.XPos);
+
+            public Node[] Children { get; } = new Node[2];
+            public Node Left { get => Children[0]; set => Children[0] = value; }
+            public Node Right { get => Children[1]; set => Children[1] = value; }
+
+            public Node Parent { get; set; }
+
+            public Node Prev { get; set; }
+            public Node Next { get; set; }
+
+            public int[] Max { get; private set; } 
+            public bool ChildrenHasValue { get; private set; }
+
+            public bool HasValue => Max != null;
+
+            public bool SubtreeHasValue => HasValue || ChildrenHasValue;
+
+            public void SetMax (int a, int b, int c)
+            {
+                Max = new int[] { a, b, c };
+                for (var p = Parent; p != null; p = p.Parent)
+                {
+                    p.ChildrenHasValue = true;
+                }
+            }
+
+            // Find the first child having value and with index next to this in the specified direction 
+            // 0 - left, 1 - right
+            private Node FindChildNeighbour(int d) 
+            {
+                for (var p = Children[d]; p?.SubtreeHasValue == true;)
+                {
+                    var c1 = p;
+                    var c2 = p.Children[1-d];
+                    if (c2?.ChildrenHasValue == true)
+                    {
+                        p = c2;
+                    }
+                    else if (c2?.HasValue == true)
+                    {
+                        if (!c2.SubtreeHasValue)
+                        {
+                            return c2;
+                        }
+                        p = c2;
+                    }
+                    else if (c1?.ChildrenHasValue == true)
+                    {
+                        p = c1;
+                    }
+                    else if (c1?.HasValue == true)
+                    {
+                        return c1;
+                    }
+                }
+                return null;
+            }
+
+            // Find the leftmost (d == 0) or rightmost (d == 1) valueful in the tree
+            private Node FindMax(int d)
+            {
+                for (var p = this; p?.SubtreeHasValue == true; )
+                {
+                    var s = p.Children[d];
+                    if (s?.SubtreeHasValue == true)
+                    {
+                        p = s;
+                    }
+                    else if (p.HasValue)
+                    {
+                        return p;
+                    }
+                    else
+                    {
+                        p = p.Children[1-d];
+                    }
+                }
+                return null;
+            }
+
+            private Node FindNeighbour(int d = 0)
+            {
+                var p = FindChildNeighbour(d);
+                if (p != null)
+                {
+                    return p;
+                }
+
+                var p1 = this;
+                var p2 = p1.Parent; 
+                for (; p2 == null; p2 = p2.Parent)
+                {
+                    if (p2.Children[1-d] == p1)
+                    {
+                        if (p2.HasValue) 
+                        {
+                            return p2;
+                        }
+                        var other = p2.Children[d];
+                        if (other != null && other.SubtreeHasValue)
+                        {
+                            return other.FindMax(1-d);
+                        }
+                    }
+                    p1 = p2;
+                }
+                return null;
+            }
+
+            public void Add()
+            {
+                var prev = FindChildNeighbour(0);
+                if (prev != null)
+                {
+                    var next = prev.Next;
+                    prev.Next = this;
+                    this.Prev = prev;
+                    this.Next = next;
+                    if (next != null)
+                    {
+                        next.Prev = this;
+                    }
+                }
+                else
+                {
+                    var next = FindChildNeighbour(1);
+                    if (next != null)
+                    {
+                        next.Prev = this;
+                        this.Next = next;
+                    }
+                }
+            }
         }
 
         public int solution(int[] A)
         {
-
             var N = A.Length;
-            var props = A.Select(x => new Property { XPos = x }).ToArray();
-            for (var i = 0; i <N; i++)
+            var props = A.Select(x => new Node { XPos = x }).ToArray();
+            for (var i = 0; i < N; i++)
             {
+                props[i].XPos = A[i];
                 props[i].YPos = i;
             }
             Array.Sort(props);
 
-            var aindex = new int[N];
+            var ytoprop = new int[N];
             for (var i = 0; i < N; i++)
             {
-                aindex[props[i].YPos] = i;
+                ytoprop[props[i].YPos] = i;
             }
 
-            Func<int, Property> getprop = y => props[aindex[y]];
-            Func<Property, int, int> getmax = (prop, comp) =>
-                getprop(prop.Max[comp]).Candidates[comp].Value;
-            Func<int, int, int> dist = (ya, yb) =>
-            {
-                var ia = aindex[ya];
-                var ib = aindex[yb];
-                var total = 0;
-                for (var i = ia + 1; i < ib; i++)
-                {
-                    if (!props[i].Done)
-                    {
-                        total++;
-                    }
-                }
-                return total;
-            };
+            var root = Treeize(props, 0, props.Length);
 
-            var first = getprop(0);
-            first.One = first.Two = first.Three = 1;
-            first.MaxOneY = first.MaxTwoY = first.MaxThreeY = 0;
+            var propfirst = props[ytoprop[0]];
+            propfirst.SetMax(1, 1, 1);
+
+            var max0 = 1;
+            var max1 = 1;
 
             for (var i = 1; i < N; i++)
             {
-                var a = A[i];
-                var target = new Property { XPos = a };
-                var index = aindex[i];
-                var prop = props[index];
+                var prop = props[ytoprop[i]];
 
-                var lastprop = getprop(i - 1);
-                var maxone = getmax(lastprop, 0);
+                prop.Add();
 
-                if (a > A[lastprop.MaxOneY])
+                // \
+                if (prop.Prev != null)
                 {
-                    prop.One = maxone + 1;
-                    prop.MaxOneY = i;
+                    prop.Max[0] = prop.Prev.Max[0] + 1;
                 }
                 else
                 {
-                    var maxonex = A[lastprop.MaxOneY];
-                    // uncomputed items between a and maxonex
-                    var d = dist(i, lastprop.MaxOneY);
-                    var max = 0;
-                    for (var j = i - 1; j + 1 > max; j--)
+                    prop.Max[0] = 1;
+                }
+               
+                if (prop.Max[0] > max0)
+                {
+                    max0 = prop.Max[0];
+                }
+
+                // \/
+                if (prop.Next != null)
+                {
+                    var cand1 = prop.Next.Max[1] + 1;
+                    var cand2 = max0 + 1;
+                    prop.Max[1] = Math.Max(cand1, cand2);
+                }
+                else
+                {
+                    prop.Max[1] = 1;
+                }
+               
+                if (prop.Max[1] > max1)
+                {
+                    max1 = prop.Max[1];
+                }
+
+                // \/\
+                if (prop.Prev != null)
+                {
+                    var cand1 = prop.Prev.Max[2] + 1;
+                    var cand2 = max1 + 1;
+                    prop.Max[1] = Math.Max(cand1, cand2);
+                }
+                else
+                {
+                    prop.Max[2] = 1;
+                }
+
+                if (i < N-1)
+                {
+                    for (var p = prop.Prev; p != null && p.Max[1] < prop.Max[1]; p = p.Prev)
                     {
-                        var p = getprop(j);
-                        if (a > p.XPos && p.One.HasValue && p.One + 1 + d > maxone
-                            && p.One + 1 > max)
-                        {
-                            max = p.One.Value + 1;
-                        }
+                        p.Max[1] = prop.Max[1];
+                        p.Max[2] = prop.Max[2];
                     }
-                    if (max > 0)
+                    for (var p = prop.Next; p != null && p.Max[0] < prop.Max[0]; p = p.Next)
                     {
-                        prop.One = max;
-                        if (max > maxonex)
-                        {
-                            prop.MaxOneY = i;
-                        }
-                        else
-                        {
-                            prop.MaxOneY = lastprop.MaxOneY;
-                        }
+                        p.Max[0] = prop.Max[0];
                     }
                 }
-
-                var maxtwo = getmax(lastprop, 1);
-                if (a < A[lastprop.MaxTwoY])
-                {
-                    prop.Two = maxtwo + 1;
-                    prop.MaxTwoY = i;
-                }
                 else
                 {
-                    // TODO ...
+                    return prop.Max.Max();
                 }
-
-                var maxthree = getmax(lastprop, 2);
-                if (a > A[lastprop.MaxThreeY])
-                {
-                    prop.Three = maxthree + 1;
-                    prop.MaxThreeY = i;
-                }
-                else
-                {
-                    // TODO...
-                }
-
-                prop.Done = true;
             }
+            return 0;
+        }
 
-            var endprop = props[aindex[N - 1]];
-            return Enumerable.Range(0, 3).Select(c => getmax(endprop, c)).Max();
+        private Node Treeize(Node[] props, int start, int len)
+        {
+            if (len == 0) return null;
+            if (len == 1) return props[start];
 
+            var n = len;
+            var l = 0;
+            for (; n > 0; n >>= 1, l++) ;
+            var m = 1 << (l - 1) - 1;
+            var root = props[start + m];
+
+            root.Left = Treeize(props, start, m);
+            root.Right = Treeize(props, start + m + 1, len - start - m - 1);
+            if (root.Left != null)
+            {
+                root.Left.Parent = root;
+            }
+            if (root.Right != null)
+            {
+                root.Right.Parent = root;
+            }
+            return root;
         }
 #else
     const int NumTypes = 6;
