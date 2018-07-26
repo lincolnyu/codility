@@ -118,7 +118,8 @@ namespace codility
             //Test<FloodDepth.Tester>();
 
             //Test<SlalomSkiing.Tester>();
-            Profile<SlalomSkiing.Profiler>(2);
+            //Profile<SlalomSkiing.Profiler>(2);
+            new Lib.SmartArray.Tests.BasicTest().Test();
 
             //Test<DwarfsRafting.Tester>();
             //Test<RectangleBuilderGreaterArea.Tester>();

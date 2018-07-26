@@ -13,7 +13,7 @@ namespace codility.Lessons.Lesson90
 #else
 class Solution
 #endif
-{
+    {
 #if NEW_IMPLEMENTATION
         class Node : IComparable<Node>
         {
@@ -24,9 +24,14 @@ class Solution
                 => XPos.CompareTo(other.XPos);
 
             public Node[] Children { get; } = new Node[2];
+
+#if TEST
             public Node Left { get => Children[0]; set => Children[0] = value; }
             public Node Right { get => Children[1]; set => Children[1] = value; }
-
+#else
+            public Node Left { get { return Children[0];} set { Children[0] = value; }}
+            public Node Right { get { return Children[1];} set { Children[1] = value; } }
+#endif
             public Node Parent { get; set; }
 
             public Node Prev { get; set; }
@@ -289,7 +294,7 @@ class Solution
             return root;
         }
 #else
-    const int NumTypes = 6;
+        const int NumTypes = 6;
 
     class Track
     {
@@ -416,7 +421,7 @@ class Solution
 #endif
 
 #if TEST
-        public object Run(params object[] args)
+            public object Run(params object[] args)
             => solution((int[])args[0]);
 
         public class Tester : BaseSelfTester<SlalomSkiing>
@@ -436,6 +441,8 @@ class Solution
                 var rand = new Random(123);
                 var seq = rand.GenerateRandomSequence(size);
                 yield return BaseTester.CreateInputSet(null, seq);
+                var monotonic = Enumerable.Range(1, 90000).ToArray();
+                yield return BaseTester.CreateInputSet(null, monotonic);
             }
         }
     }
