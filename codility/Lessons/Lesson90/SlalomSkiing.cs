@@ -1,5 +1,5 @@
 ﻿#define TEST
-#define NEW_IMPLEMENTATION
+#define NEW_IMPLEMENTATION2
 using System.Linq;
 using System;
 using codility.Helpers;
@@ -7,14 +7,163 @@ using codility.Helpers;
 #if TEST
 using System.Collections.Generic;
 using codility.TestFramework;
+using codility.Lib.SmartArray;
+
 namespace codility.Lessons.Lesson90
 {
+    using Sa = Algo<SlalomSkiing.Pod>;
+
     class SlalomSkiing : ITestee
 #else
-class Solution
+    // TODO add the lib code here...
+
+    class Solution
 #endif
     {
-#if NEW_IMPLEMENTATION
+#if NEW_IMPLEMENTATION2
+        public class Pod : Node<Pod>, IComparable<Pod>
+        {
+            public int XPos;
+            public int YPos;
+            public int Index;
+
+            public new Pod Parent => (Pod)base.Parent;
+            public new Pod Left => (Pod)base.Left;
+            public new Pod Right => (Pod)base.Right;
+
+            // 0 being none
+            public int[] Max = new int[3];
+            public int[] MaxSt = new int[3];
+
+            public int CompareTo(Pod other)
+                => XPos.CompareTo(other.XPos);
+        }
+
+        private static Sa.MarkDelegate GenMark(int c, int m)
+            => (p, subtree) =>
+            {
+                p.Max[c] = m;
+                if (subtree)
+                {
+                    p.MaxSt[c] = m;
+                }
+            };
+
+        private static Sa.UnmarkSubtreeDelegate GenUnmark(int c)
+            => p => p.MaxSt[c] = 0;
+
+        private static void Mark(Pod left, Pod right, int c, int m)
+            => Sa.MarkRange(left, right, GenMark(c, m), GenUnmark(c));
+
+        private static int GetMark(Pod root, int i, int c)
+        {
+            var p = Sa.FindMark(root, GetFinder(i), GetHasMark(c));
+            if (p.MaxSt[c] > 0) return p.MaxSt[c];
+            return p.Max[c];
+        }
+
+        private static Predicate<Pod> GetHasMark(int c)
+            => pod => pod.Max[c] > 0 || pod.MaxSt[c] > 0;
+            
+        private static Func<Pod, int> GetFinder(int i)
+            => p => i.CompareTo(p.Index);
+        
+        static int FindFirstGreater(Pod root, int t, int c, bool rev, int len)
+        {
+            var lastp = root;
+            for (var p = root; p != null;)
+            {
+                if (p.MaxSt[c] > 0)
+                {
+                    var cmp = t.CompareTo(p.MaxSt[c]);
+                    if (cmp >= 0)
+                    {
+                        return rev ? -1 : len;
+                    }
+                    return rev ? len - 1 : 0;
+                }
+                else
+                {
+                    lastp = p;
+                    var cmp = t.CompareTo(p.Max[c]);
+                    if (cmp != 0)
+                    {
+                        p = (cmp < 0 ^ rev) ? p.Left : p.Right;
+                    }
+                    else if (!rev && t == p.Left?.Max[c])
+                    {
+                        p = p.Left;
+                    }
+                    else if (rev && t == p.Right?.Max[c])
+                    {
+                        p = p.Right;
+                    }
+                    else
+                    {
+                        p = null;
+                    }
+                }
+            }
+            return lastp.Index;
+        }
+
+        public int solution(int[] A)
+        {
+            var N = A.Length;
+            var pods = Sa.Load(A, x => new Pod { XPos = x }).ToArray();
+            for (var i = 0; i < N; i++)
+            {
+                pods[i].YPos = i;
+            }
+            Array.Sort(pods);
+            for (var i = 0; i < N; i++)
+            {
+                pods[i].Index = i;
+            }
+
+            var ytopod = new int[N];
+            for (var i = 0; i < N; i++)
+            {
+                ytopod[pods[i].YPos] = i;
+            }
+
+            var root = Sa.Treeify(pods);
+
+            var max0 = 0;
+            var max1 = 0;
+            var max2 = 0;
+            for (var i = 0; i < N; i++)
+            {
+                var podi = ytopod[i];
+                var pod = pods[podi];
+
+                var pod0 = i == 0 ? 0 : GetMark(root, podi, 0);
+                var pod1 = i == 0 ? 0 : GetMark(root, podi, 1);
+                var pod2 = i == 0 ? 0 : GetMark(root, podi, 2);
+
+                // 1
+                var new0 = pod0 + 1;
+                var end0 = i == 0 ? N : FindFirstGreater(root, new0, 0, false, N);
+                Mark(pod, pods[end0 - 1], 0, new0);
+
+                // 2
+                var new1 = Math.Max(pod1 + 1, max0 + 1);
+                var end1 = i == 0 ? -1 : FindFirstGreater(root, new1, 1, true, N);
+                Mark(pods[end1 + 1], pod, 1, new1);
+
+                // 3
+                var new2 = Math.Max(pod2 + 1, max1 + 1);
+                var end2 = i == 0 ? N : FindFirstGreater(root, new2, 2, false, N);
+                Mark(pod, pods[end2 - 1], 2, new2);
+
+                if (new0 > max0) max0 = new0;
+                if (new1 > max1) max1 = new1;
+                if (new2 > max2) max2 = new2;
+            }
+            return Math.Max(Math.Max(max0, max1), max2);
+        }
+
+#elif NEW_IMPLEMENTATION
         class Node : IComparable<Node>
         {
             public int XPos { get; set; }
@@ -179,7 +328,7 @@ class Solution
                 ytoprop[props[i].YPos] = i;
             }
 
-            var root = Treeize(props, 0, props.Length);
+            var root = Treeify(props, 0, props.Length);
 
             var propfirst = props[ytoprop[0]];
             propfirst.SetMax(1, 1, 1);
@@ -270,7 +419,7 @@ class Solution
             return Math.Max(Math.Max(global_max0, global_max1), global_max2);
         }
 
-        private Node Treeize(Node[] props, int start, int len)
+        private Node Treeify(Node[] props, int start, int len)
         {
             if (len == 0) return null;
             if (len == 1) return props[start];
@@ -281,8 +430,8 @@ class Solution
             var m = 1 << (l - 1) - 1;
             var root = props[start + m];
 
-            root.Left = Treeize(props, start, m);
-            root.Right = Treeize(props, start + m + 1, len - m - 1);
+            root.Left = Treeify(props, start, m);
+            root.Right = Treeify(props, start + m + 1, len - m - 1);
             if (root.Left != null)
             {
                 root.Left.Parent = root;
