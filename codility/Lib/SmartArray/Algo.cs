@@ -105,29 +105,36 @@ namespace codility.Lib.SmartArray
             // NOTE The purpose is not to maximizing subtree marking
             //      but minimizing the marking operations itself
 
+            Node lastp;
+
             var p = left;
-            var lastp = p.Left;
-            for (; ; )
+
+            if (p != right)
             {
-                var pp = p.Parent;
-                if (pp != null && pp.CompareTo(right) < 0)
+                lastp = p.Left;
+                for (; ; )
                 {
-                    if (p.Left == lastp)
+                    var pp = p.Parent;
+                    if (pp != null && pp.CompareTo(right) < 0)
                     {
-                        mark(p, false);
-                        if (p.Right != null)
+                        if (p.Left == lastp)
                         {
-                            mark((T)p.Right, true);
+                            mark(p, false);
+                            if (p.Right != null)
+                            {
+                                mark((T)p.Right, true);
+                            }
                         }
                     }
+                    else
+                    {
+                        break;
+                    }
+                    lastp = p;
+                    p = (T)pp;
                 }
-                else
-                {
-                    break;
-                }
-                lastp = p;
-                p = (T)pp;
             }
+
             // p is now common root
 
             if (p == left)

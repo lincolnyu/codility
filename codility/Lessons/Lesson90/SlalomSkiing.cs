@@ -58,6 +58,7 @@ namespace codility.Lessons.Lesson90
         private static int GetMark(Pod root, int i, int c)
         {
             var p = Sa.FindMark(root, GetFinder(i), GetHasMark(c));
+            if (p == null) return 0;
             if (p.MaxSt[c] > 0) return p.MaxSt[c];
             return p.Max[c];
         }
