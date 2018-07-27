@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define LOCAL_FUNCTION
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,6 +11,7 @@ namespace codility.Lib.SmartArray
         public Node Parent { get; set; }
         public Node Left { get; set; }
         public Node Right { get; set; }
+        public int Depth { get; set; }
 
         // Assumption: Items are distinct with respect to this comparison
         public abstract int CompareTo(Node other);
@@ -22,8 +25,20 @@ namespace codility.Lib.SmartArray
 
     public static class Algo<T> where T : Node
     {
-        public delegate void MarkDelegate(T n, bool subtree = false);
+        public enum MarkType
+        {
+            LeftAndCenter,
+            RightAndCenter,
+            CenterAndCheck,
+            CheckAll
+        }
+
+        public delegate void MarkDelegate(T n, MarkType mt);
         public delegate void UnmarkSubtreeDelegate(T n);
+
+#if !NEW_CSHARP
+        delegate void Walk();
+#endif
 
         // the depth of the tree
         private static int Log2(int a)
@@ -37,18 +52,23 @@ namespace codility.Lib.SmartArray
             => t.Select(x => create(x));
 
         public static T Treeify(IList<T> sorted)
-            => Treeify(sorted, 0, sorted.Count);
+            => Treeify(sorted, 0, sorted.Count, 0);
 
-        public static T Treeify(IList<T> sorted, int start, int len)
+        public static T Treeify(IList<T> sorted, int start, int len, int depth)
         {
             if (len == 0) return null;
-            if (len == 1) return sorted[start];
+            if (len == 1)
+            {
+                sorted[start].Depth = depth;
+                return sorted[start];
+            }
 
             var l = Log2(len);
             var m = (1 << (l - 1)) - 1;
             var root = sorted[start + m];
-            root.Left = Treeify(sorted, start, m);
-            root.Right = Treeify(sorted, start + m + 1, len - m - 1);
+            root.Depth = depth;
+            root.Left = Treeify(sorted, start, m, depth+1);
+            root.Right = Treeify(sorted, start + m + 1, len - m - 1, depth+1);
             if (root.Left != null)
             {
                 root.Left.Parent = root;
@@ -94,77 +114,65 @@ namespace codility.Lib.SmartArray
             return null;
         }
 
-        public static void MarkRange(T left, T right,
-            MarkDelegate mark, UnmarkSubtreeDelegate unmarkSubtree)
+        public static void MarkRange(T left, T right, MarkDelegate mark)
         {
-            // left (inclusive) to common root (exclusive)
-            //   for every 'right parent' (or left itself) :
-            //      single-mark it
-            //      subtree-mark its right child if existent
-            // similar to right
+            var lpl = left.Left;
+            var pl = left;
+            var lpr = right.Right;
+            var pr = right;
 
-            // NOTE The purpose is not to maximizing subtree marking
-            //      but minimizing the marking operations itself
-
-            Node lastp;
-
-            var p = left;
-
-            lastp = p.Left;
-            for (; p != right;)
+#if LOCAL_FUNCTION
+            void walkLeft()
+#else
+            Walk walkLeft = () =>
+#endif
             {
-                var pp = p.Parent;
-                if (pp != null && pp.CompareTo(right) < 0)
+                if (pl.Left == lpl)
                 {
-                    if (p.Left == lastp)
-                    {
-                        mark(p, false);
-                        if (p.Right != null)
-                        {
-                            mark((T)p.Right, true);
-                        }
-                    }
+                    // Howerver the implementing method is recommend to check if
+                    // the left subtree is marked and decide if the whole subtree is
+                    mark(pl, MarkType.RightAndCenter);
                 }
-                else if (pp != right)
+                lpl = pl;
+            };
+
+#if LOCAL_FUNCTION
+            void walkRight()
+#else
+            Walk walkRight = () =>
+#endif
+            {
+                if (pr.Right == lpr)
                 {
-                    break;
+                    // Howerver the implementing method is recommended to check if
+                    // the right subtree is marked and decide if the whole subtree is
+                    mark(pl, MarkType.LeftAndCenter);
                 }
-                lastp = p;
-                p = (T)pp;
+                lpr = pr;
+            };
+
+            for (; pl.Depth > right.Depth; pl = (T)pl.Parent)
+            {
+                walkLeft();
+            }
+            for (; pr.Depth > left.Depth; pr = (T)pr.Parent)
+            {
+                walkRight();
             }
 
-            // p is now the common ancetor
-
-            if (p == left)
+            for (; pl != pr; pl = (T)pl.Parent, pr = (T)pr.Parent)
             {
-                mark(left, false);
-            }
-            else if (p == right)
-            {
-                mark(right, false);
-            }
-            else
-            {
-                mark(p, false);
+                walkLeft();
+                walkRight();
             }
 
-            lastp = right.Right;
-            for (var pr = right; pr != p; pr = (T)pr.Parent)
+            // Mark the center and if both children are marked then mark the whole subtree
+            mark(pl, MarkType.CenterAndCheck);
+            
+            for (pl = (T)pl.Parent; pl != null; pl = (T)pl.Parent)
             {
-                if (pr.Right == lastp)
-                {
-                    mark(pr, false);
-                    if (pr.Left != null)
-                    {
-                        mark((T)pr.Left, true);
-                    }
-                }
-                lastp = pr;
-            }
-
-            for (; p != null; p = (T)p.Parent)
-            {
-                unmarkSubtree(p);
+                // If only the current and both children are marked then mark the whole subtree
+                mark(pl, MarkType.CheckAll);
             }
         }
     }

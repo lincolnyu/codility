@@ -36,24 +36,67 @@ namespace codility.Lessons.Lesson90
             public int[] MaxSt = new int[3];
 
             public int CompareTo(Pod other)
-                => Index.CompareTo(other.Index);
+                => XPos.CompareTo(other.XPos);
         }
 
         private static Sa.MarkDelegate GenMark(int c, int m)
-            => (p, subtree) =>
+            => (p, mt) =>
             {
                 p.Max[c] = m;
-                if (subtree)
+                switch(mt)
                 {
-                    p.MaxSt[c] = m;
+                    case Sa.MarkType.LeftAndCenter:
+                        if (p.Right == null || p.Right.MaxSt[c] == m)
+                        {
+                            p.MaxSt[c] = m;
+                        }
+                        else
+                        {
+                            if(p.Left != null)
+                            {
+                                p.Left.MaxSt[c] = m;
+                            }
+                            p.Max[c] = m;
+                        }
+                        break;
+                    case Sa.MarkType.RightAndCenter:
+                        if (p.Left == null || p.Left.MaxSt[c] == m)
+                        {
+                            p.MaxSt[c] = m;
+                        }
+                        else
+                        {
+                            if (p.Right == null)
+                            {
+                                p.Right.MaxSt[c] = m;
+                            }
+                            p.Max[c] = m;
+                        }
+                        break;
+                    case Sa.MarkType.CenterAndCheck:
+                        if ((p.Left == null || p.Left.MaxSt[c] == m)
+                            && (p.Right == null || p.Right.MaxSt[c] == m))
+                        {
+                            p.MaxSt[c] = m;
+                        }
+                        else
+                        {
+                            p.Max[c] = m;
+                        }
+                        break;
+                    case Sa.MarkType.CheckAll:
+                        if ((p.Left == null || p.Left.MaxSt[c] == m)
+                            && (p.Right == null || p.Right.MaxSt[c] == m)
+                            && p.Max[c] == m)
+                        {
+                            p.MaxSt[c] = m;
+                        }
+                        break;
                 }
             };
-
-        private static Sa.UnmarkSubtreeDelegate GenUnmark(int c)
-            => p => p.MaxSt[c] = 0;
-
+        
         private static void Mark(Pod left, Pod right, int c, int m)
-            => Sa.MarkRange(left, right, GenMark(c, m), GenUnmark(c));
+            => Sa.MarkRange(left, right, GenMark(c, m));
 
         private static int GetMark(Pod root, int i, int c)
         {
@@ -69,7 +112,7 @@ namespace codility.Lessons.Lesson90
         private static Func<Pod, int> GetFinder(int i)
             => p => i.CompareTo(p.Index);
         
-        static int FindFirstGreater(Pod root, int t, int c, bool rev, int len)
+        static int FindFirstNoLess(Pod root, int t, int c, bool rev, int len)
         {
             var lastp = root;
             for (var p = root; p != null;)
@@ -77,31 +120,32 @@ namespace codility.Lessons.Lesson90
                 if (p.MaxSt[c] > 0)
                 {
                     var cmp = t.CompareTo(p.MaxSt[c]);
-                    if (cmp >= 0)
+                    if (rev)
                     {
-                        return rev ? -1 : len;
+                        if (cmp > 0)
+                        {
+
+                        }
                     }
-                    return rev ? len - 1 : 0;
+                    else
+                    {
+                        if (cmp > 0)
+                        {
+
+                        }
+                    }
                 }
                 else
                 {
                     lastp = p;
                     var cmp = t.CompareTo(p.Max[c]);
-                    if (cmp != 0)
+                    if (rev)
                     {
-                        p = (cmp < 0 ^ rev) ? p.Left : p.Right;
-                    }
-                    else if (!rev && t == p.Left?.Max[c])
-                    {
-                        p = p.Left;
-                    }
-                    else if (rev && t == p.Right?.Max[c])
-                    {
-                        p = p.Right;
+                        p = cmp > 0 ? p.Left : p.Right;
                     }
                     else
                     {
-                        p = null;
+                        p = cmp > 0 ? p.Right : p.Left;
                     }
                 }
             }
@@ -147,24 +191,24 @@ namespace codility.Lessons.Lesson90
                 var pod1 = i == 0 ? 0 : GetMark(root, podi, 1);
                 var pod2 = i == 0 ? 0 : GetMark(root, podi, 2);
 
-                Console.WriteLine($"{i}");
+                Console.WriteLine($"{i}: {podi}: {pod0} {pod1} {pod2}");
 
                 // 1
                 var new0 = pod0 + 1;
-                var end0 = i == 0 ? N : FindFirstGreater(root, new0, 0, false, N);
+                var end0 = i == 0 ? N : FindFirstNoLess(root, new0, 0, false, N);
                 Console.WriteLine($" mark {pod.Index} to {end0 - 1} as {new0}");
                 Mark(pod, pods[end0 - 1], 0, new0);
 
                 // 2
                 var new1 = Math.Max(pod1 + 1, max0 + 1);
-                var end1 = i == 0 ? -1 : FindFirstGreater(root, new1, 1, true, N);
+                var end1 = i == 0 ? -1 : FindFirstNoLess(root, new1, 1, true, N);
                 Console.WriteLine($" mark {end1 + 1} to {pod.Index} as {new1}");
                 Mark(pods[end1 + 1], pod, 1, new1);
 
 
                 // 3
                 var new2 = Math.Max(pod2 + 1, max1 + 1); //todo also consider max0+1?
-                var end2 = i == 0 ? N : FindFirstGreater(root, new2, 2, false, N);
+                var end2 = i == 0 ? N : FindFirstNoLess(root, new2, 2, false, N);
                 Console.WriteLine($" mark {pod.Index} to {end2 - 1} as {new2}");
                 Mark(pod, pods[end2 - 1], 2, new2);
 
@@ -499,7 +543,7 @@ namespace codility.Lessons.Lesson90
                 Direction = 1 - Direction
             };
     }
-
+        W
     bool Allowed(Track t)
         => t.Turns % 2 == 0 ? t.Direction == Track.Directions.Left
         : t.Direction == Track.Directions.Right;
