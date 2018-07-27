@@ -34,22 +34,48 @@ namespace codility.Lib.SmartArray.Tests
             var genmark = new Func<int, A.MarkDelegate>(
                 m => new A.MarkDelegate
                     (
-                        (p, subtree) =>
+                        (p, mt) =>
                         {
-                            p.MarkSelf = m;
-                            if (subtree)
+                            switch (mt)
                             {
-                                p.MarkSubtree = m;
+                                case A.MarkType.LeftAndCenter:
+                                    p.MarkSelf = m;
+                                    if (p.Left != null)
+                                    {
+                                        ((Pod)p.Left).MarkSubtree = m;
+                                    }
+                                    break;
+                                case A.MarkType.RightAndCenter:
+                                    p.MarkSelf = m;
+                                    if (p.Left != null)
+                                    {
+                                        ((Pod)p.Right).MarkSubtree = m;
+                                    }
+                                    break;
+                                case A.MarkType.CenterAndCheck:
+                                    if ((p.Left == null || ((Pod)p.Left).MarkSubtree == m)
+                                        && (p.Right == null || ((Pod)p.Right).MarkSubtree == m))
+                                    {
+                                        p.MarkSubtree = m;
+                                    }
+                                    else
+                                    {
+                                        p.MarkSelf = m;
+                                    }
+                                    break;
+                                case A.MarkType.CheckAll:
+                                    if ((p.Left == null || ((Pod)p.Left).MarkSubtree == m)
+                                          && (p.Right == null || ((Pod)p.Right).MarkSubtree == m)
+                                          && p.MarkSelf == m)
+                                    {
+                                        p.MarkSubtree = m;
+                                    }
+                                    break;
                             }
                         }
                     )
             );
-
-            var unmarkSub = new A.UnmarkSubtreeDelegate
-            (
-                p => p.MarkSubtree = null
-            );
-
+            
             var getfinder = new Func<int, Func<Pod, int>>(
                  i => new Func<Pod, int>(p =>
                          i.CompareTo(p.Value))
@@ -78,7 +104,7 @@ namespace codility.Lib.SmartArray.Tests
 
             var p3 = A.Find(root, getfinder(3));
             var p6 = A.Find(root, getfinder(6));
-            A.MarkRange(p3, p6, genmark(5), unmarkSub);
+            A.MarkRange(p3, p6, genmark(5));
 
             for (var i = 0; i < ilist.Length; i++)
             {
@@ -97,7 +123,7 @@ namespace codility.Lib.SmartArray.Tests
 
             var p5 = A.Find(root, getfinder(5));
             var p9 = A.Find(root, getfinder(9));
-            A.MarkRange(p5, p9, genmark(3), unmarkSub);
+            A.MarkRange(p5, p9, genmark(3));
 
             for (var i = 0; i < ilist.Length; i++)
             {

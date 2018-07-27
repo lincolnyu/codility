@@ -146,7 +146,7 @@ namespace codility.Lib.SmartArray
                 {
                     // Howerver the implementing method is recommended to check if
                     // the right subtree is marked and decide if the whole subtree is
-                    mark(pl, MarkType.LeftAndCenter);
+                    mark(pr, MarkType.LeftAndCenter);
                 }
                 lpr = pr;
             };
