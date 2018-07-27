@@ -36,7 +36,7 @@ namespace codility.Lessons.Lesson90
             public int[] MaxSt = new int[3];
 
             public int CompareTo(Pod other)
-                => XPos.CompareTo(other.XPos);
+                => Index.CompareTo(other.Index);
         }
 
         private static Sa.MarkDelegate GenMark(int c, int m)
@@ -105,6 +105,10 @@ namespace codility.Lessons.Lesson90
                     }
                 }
             }
+            if (lastp.Max[c] <= t)
+            {
+                return rev ? lastp.Index - 1 : lastp.Index + 1;
+            }
             return lastp.Index;
         }
 
@@ -133,6 +137,7 @@ namespace codility.Lessons.Lesson90
             var max0 = 0;
             var max1 = 0;
             var max2 = 0;
+            Console.WriteLine($"N = {N}");
             for (var i = 0; i < N; i++)
             {
                 var podi = ytopod[i];
@@ -142,19 +147,25 @@ namespace codility.Lessons.Lesson90
                 var pod1 = i == 0 ? 0 : GetMark(root, podi, 1);
                 var pod2 = i == 0 ? 0 : GetMark(root, podi, 2);
 
+                Console.WriteLine($"{i}");
+
                 // 1
                 var new0 = pod0 + 1;
                 var end0 = i == 0 ? N : FindFirstGreater(root, new0, 0, false, N);
+                Console.WriteLine($" mark {pod.Index} to {end0 - 1} as {new0}");
                 Mark(pod, pods[end0 - 1], 0, new0);
 
                 // 2
                 var new1 = Math.Max(pod1 + 1, max0 + 1);
                 var end1 = i == 0 ? -1 : FindFirstGreater(root, new1, 1, true, N);
+                Console.WriteLine($" mark {end1 + 1} to {pod.Index} as {new1}");
                 Mark(pods[end1 + 1], pod, 1, new1);
 
+
                 // 3
-                var new2 = Math.Max(pod2 + 1, max1 + 1);
+                var new2 = Math.Max(pod2 + 1, max1 + 1); //todo also consider max0+1?
                 var end2 = i == 0 ? N : FindFirstGreater(root, new2, 2, false, N);
+                Console.WriteLine($" mark {pod.Index} to {end2 - 1} as {new2}");
                 Mark(pod, pods[end2 - 1], 2, new2);
 
                 if (new0 > max0) max0 = new0;

@@ -10,6 +10,7 @@ namespace codility.Lib.SmartArray
         public Node Left { get; set; }
         public Node Right { get; set; }
 
+        // Assumption: Items are distinct with respect to this comparison
         public abstract int CompareTo(Node other);
     }
 
@@ -109,33 +110,30 @@ namespace codility.Lib.SmartArray
 
             var p = left;
 
-            if (p != right)
+            lastp = p.Left;
+            for (; p != right;)
             {
-                lastp = p.Left;
-                for (; ; )
+                var pp = p.Parent;
+                if (pp != null && pp.CompareTo(right) < 0)
                 {
-                    var pp = p.Parent;
-                    if (pp != null && pp.CompareTo(right) < 0)
+                    if (p.Left == lastp)
                     {
-                        if (p.Left == lastp)
+                        mark(p, false);
+                        if (p.Right != null)
                         {
-                            mark(p, false);
-                            if (p.Right != null)
-                            {
-                                mark((T)p.Right, true);
-                            }
+                            mark((T)p.Right, true);
                         }
                     }
-                    else
-                    {
-                        break;
-                    }
-                    lastp = p;
-                    p = (T)pp;
                 }
+                else if (pp != right)
+                {
+                    break;
+                }
+                lastp = p;
+                p = (T)pp;
             }
 
-            // p is now common root
+            // p is now the common ancetor
 
             if (p == left)
             {
