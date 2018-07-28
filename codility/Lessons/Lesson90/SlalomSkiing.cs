@@ -1,30 +1,38 @@
 ﻿#define TEST
-//#define DEBUG_PROGRAM
+#define DEBUG_PROGRAM
 
 #define NEW_IMPLEMENTATION
+
 using System.Linq;
 using System;
-using codility.Helpers;
+using System.Collections.Generic;
 
 #if TEST
-using System.Collections.Generic;
-using codility.TestFramework;
+
 using codility.Lib.SmartArray;
+using codility.Helpers;
+using codility.TestFramework;
 
 namespace codility.Lessons.Lesson90
 {
-#if NEW_IMPLEMENTATION2
+#if NEW_IMPLEMENTATION
     using Sa = Algo<SlalomSkiing.Pod>;
 #endif
 
     class SlalomSkiing : ITestee
 #else
-    // TODO add the lib code here...
+
+#if NEW_IMPLEMENTATION
+    using Sa = Algo<Solution.Pod>;
+#endif
+
+// TODO add the lib code here...
 
     class Solution
 #endif
     {
-#if NEW_IMPLEMENTATION2
+
+#if NEW_IMPLEMENTATION
         public class Pod : Node<Pod>, IComparable<Pod>
         {
             public int XPos;
@@ -129,11 +137,30 @@ namespace codility.Lessons.Lesson90
             };
 
         private static Sa.MarkStmelegate<int> GenMarkStm(int c)
-            => (n, stm) =>
+            => (n, stm, mst) =>
             {
-                n.MaxSt[c] = stm;
-                n.Parent.MaxSt[c] = 0;
-                n.Parent.Max[c] = stm;
+                switch (mst )
+                {
+                    case Sa.MarkStmType.LeftStAndCenter:
+                        n.MaxSt[c] = 0;
+                        n.Max[c] = stm;
+                        if (n.Left != null)
+                        {
+                            n.Left.MaxSt[c] = stm;
+                        }
+                        break;
+                    case Sa.MarkStmType.RightStAndCenter:
+                        n.MaxSt[c] = 0;
+                        n.Max[c] = stm;
+                        if (n.Right != null)
+                        {
+                            n.Right.MaxSt[c] = stm;
+                        }
+                        break;
+                    case Sa.MarkStmType.CenterStOnly:
+                        n.MaxSt[c] = stm;
+                        break;
+                }
             };
 
         private static void Mark(Pod left, Pod right, int c, int m)
@@ -231,7 +258,7 @@ namespace codility.Lessons.Lesson90
             var max1 = 0;
             var max2 = 0;
 
-#if true || DEBUG_PROGRAM
+#if DEBUG_PROGRAM
             Console.WriteLine($"N = {N}");
             void SnapShot(out int[] p0, out int[] p1, out int[] p2)
             {
@@ -286,12 +313,16 @@ namespace codility.Lessons.Lesson90
                 var podi = ytopod[i];
                 var pod = pods[podi];
 
+                if (i == 2)
+                {
+                    i = i;
+                }
+
                 var pod0 = i == 0 ? 0 : GetMark(root, podi, 0);
                 var pod1 = i == 0 ? 0 : GetMark(root, podi, 1);
                 var pod2 = i == 0 ? 0 : GetMark(root, podi, 2);
 #if DEBUG_PROGRAM
                 SnapShot(out var oldp0, out var oldp1, out var oldp2);
-                Console.WriteLine($"{i}: {podi}: {pod0} {pod1} {pod2}");
 #endif
              
                 // 0
@@ -345,420 +376,142 @@ namespace codility.Lessons.Lesson90
             return Math.Max(Math.Max(max0, max1), max2);
         }
 
-#elif NEW_IMPLEMENTATION
-        class Node : IComparable<Node>
+#else // NEW_IMPLEMENTATION
+        const int NumTypes = 6;
+
+        class Track
         {
-            public int XPos { get; set; }
-            public int YPos { get; set; }
-
-            public int CompareTo(Node other)
-                => XPos.CompareTo(other.XPos);
-
-            public Node[] Children { get; } = new Node[2];
-
-#if TEST
-            public Node Left { get => Children[0]; set => Children[0] = value; }
-            public Node Right { get => Children[1]; set => Children[1] = value; }
-#else
-            public Node Left { get { return Children[0];} set { Children[0] = value; }}
-            public Node Right { get { return Children[1];} set { Children[1] = value; } }
-#endif
-            public Node Parent { get; set; }
-
-            public Node Prev { get; set; }
-            public Node Next { get; set; }
-
-            public int[] Max { get; private set; } 
-            public bool ChildrenHasValue { get; private set; }
-
-            public bool HasValue => Max != null;
-
-            public bool SubtreeHasValue => HasValue || ChildrenHasValue;
-
-            public void SetMax (int a, int b, int c)
+            public enum Directions
             {
-                Max = new int[] { a, b, c };
-                for (var p = Parent; p != null; p = p.Parent)
-                {
-                    p.ChildrenHasValue = true;
-                }
+                Left = 0,
+                Right
             }
 
-            // Find the first child having value and with index next to this in the specified direction 
-            // 0 - left, 1 - right
-            private Node FindChildNeighbour(int d) 
+            public int Passes;
+            public int Turns;
+            public Directions Direction;
+            public int TypeIndex => GetTypeIndex(Direction, Turns);
+
+            public static int GetTypeIndex(Directions dir, int turns)
+                => (int)dir + turns * 2;
+
+            public static Track First(Directions dir)
             {
-                for (var p = Children[d]; p?.SubtreeHasValue == true;)
+                return new Track
                 {
-                    var c1 = p;
-                    var c2 = p.Children[1-d];
-                    if (c2?.ChildrenHasValue == true)
-                    {
-                        p = c2;
-                    }
-                    else if (c2?.HasValue == true)
-                    {
-                        if (!c2.SubtreeHasValue)
-                        {
-                            return c2;
-                        }
-                        p = c2;
-                    }
-                    else if (c1?.ChildrenHasValue == true)
-                    {
-                        p = c1.Children[d];
-                    }
-                    else if (c1?.HasValue == true)
-                    {
-                        return c1;
-                    }
-                }
-                return null;
+                    Passes = 1,
+                    Turns = 0,
+                    Direction = dir
+                };
             }
 
-            // Find the leftmost (d == 0) or rightmost (d == 1) valueful in the tree
-            private Node FindMax(int d)
-            {
-                for (var p = this; p?.SubtreeHasValue == true; )
+            public Track Follow()
+                => new Track
                 {
-                    var s = p.Children[d];
-                    if (s?.SubtreeHasValue == true)
-                    {
-                        p = s;
-                    }
-                    else if (p.HasValue)
-                    {
-                        return p;
-                    }
-                    else
-                    {
-                        p = p.Children[1-d];
-                    }
-                }
-                return null;
-            }
+                    Passes = Passes + 1,
+                    Turns = Turns,
+                    Direction = Direction,
+                };
 
-            private Node FindNeighbour(int d = 0)
-            {
-                var p = FindChildNeighbour(d);
-                if (p != null)
+            public Track Turn()
+                => new Track
                 {
-                    return p;
-                }
+                    Passes = Passes + 1,
+                    Turns = Turns + 1,
+                    Direction = 1 - Direction
+                };
+        }
 
-                var p1 = this;
-                var p2 = p1.Parent; 
-                for (; p2 != null; p2 = p2.Parent)
-                {
-                    if (p2.Children[1-d] == p1)
-                    {
-                        if (p2.HasValue) 
-                        {
-                            return p2;
-                        }
-                        var other = p2.Children[d];
-                        if (other != null && other.SubtreeHasValue)
-                        {
-                            return other.FindMax(1-d);
-                        }
-                    }
-                    p1 = p2;
-                }
-                return null;
-            }
+        bool Allowed(Track t)
+            => t.Turns % 2 == 0 ? t.Direction == Track.Directions.Left
+            : t.Direction == Track.Directions.Right;
 
-            public void Add()
-            {
-                var prev = FindNeighbour(0);
-                if (prev != null)
-                {
-                    var next = prev.Next;
-                    prev.Next = this;
-                    Prev = prev;
-                    Next = next;
-                    if (next != null)
-                    {
-                        next.Prev = this;
-                    }
-                }
-                else
-                {
-                    var next = FindNeighbour(1);
-                    if (next != null)
-                    {
-                        next.Prev = this;
-                        Next = next;
-                    }
-                }
-            }
+        bool Allowed(int typeIndex)
+        {
+            var dir = (Track.Directions)(typeIndex % 2);
+            var turns = typeIndex / 2;
+            return turns % 2 == 0 ? dir == Track.Directions.Left
+                : dir == Track.Directions.Right;
         }
 
         public int solution(int[] A)
         {
-            var N = A.Length;
-            var props = A.Select(x => new Node { XPos = x }).ToArray();
-            for (var i = 0; i < N; i++)
+            var dp = new Track[A.Length][];
+            for (var i = 0; i < A.Length; i++)
             {
-                props[i].XPos = A[i];
-                props[i].YPos = i;
+                Solve(A, i, dp);
             }
-            Array.Sort(props);
-
-            var ytoprop = new int[N];
-            for (var i = 0; i < N; i++)
+            var max = 0;
+            for (var i = A.Length - 1; i >= 0; i--)
             {
-                ytoprop[props[i].YPos] = i;
+                if (max > i + 1) break;
+                var d = dp[i];
+                var p = d.Max(x => x?.Passes ?? 0);
+                if (p > max) max = p;
             }
-
-            var root = Treeify(props, 0, props.Length);
-
-            var propfirst = props[ytoprop[0]];
-            propfirst.SetMax(1, 1, 1);
-
-            var global_max0 = 1;
-            var global_max1 = 1;
-            var global_max2 = 1;
-
-            for (var i = 1; i < N; i++)
-            {
-                var prop = props[ytoprop[i]];
-
-                prop.Add();
-
-                int max0;
-                int max1;
-                int max2;
-
-                // \
-                if (prop.Prev != null)
-                {
-                    max0 = prop.Prev.Max[0] + 1;
-                }
-                else
-                {
-                    max0 = 1;
-                }
-              
-                // \/
-                if (prop.Next != null)
-                {
-                    max1 = prop.Next.Max[1] + 1;
-                }
-                else
-                {
-                    max1 = 1;
-                }
-                if (max1 < global_max0 + 1)
-                {
-                    max1 = global_max0 + 1;
-                }
-               
-                // \/\
-                if (prop.Prev != null)
-                {
-                    max2 = prop.Prev.Max[2] + 1;
-                }
-                else
-                {
-                    max2 = 1;
-                }
-                if (max2 < global_max1 + 1)
-                {
-                    max2 = global_max1 + 1;
-                }
-
-                prop.SetMax(max0, max1, max2);
-
-                if (i < N - 1)
-                {
-                    for (var p = prop.Next; p != null && p.Max[0] < max0; p = p.Next)
-                    {
-                        p.Max[0] = max0;
-                    }
-                    for (var p = prop.Prev; p != null && p.Max[1] < max1; p = p.Prev)
-                    {
-                        p.Max[1] = max1;
-                    }
-                    for (var p = prop.Next; p != null && p.Max[2] < max2; p = p.Next)
-                    {
-                        p.Max[2] = max2;
-                    }
-                }
-
-                if (max0 > global_max0)
-                {
-                    global_max0 = max0;
-                }
-                if (max1 > global_max1)
-                {
-                    global_max1 = max1;
-                }
-                if (max2 > global_max2)
-                {
-                    global_max2 = max2;
-                }
-            }
-            return Math.Max(Math.Max(global_max0, global_max1), global_max2);
+            return max;
         }
 
-        private Node Treeify(Node[] props, int start, int len)
+        void Solve(int[] A, int p, Track[][] dp)
         {
-            if (len == 0) return null;
-            if (len == 1) return props[start];
-
-            var n = len;
-            var l = 0;
-            for (; n > 0; n >>= 1, l++) ;
-            var m = 1 << (l - 1) - 1;
-            var root = props[start + m];
-
-            root.Left = Treeify(props, start, m);
-            root.Right = Treeify(props, start + m + 1, len - m - 1);
-            if (root.Left != null)
+            dp[p] = new Track[NumTypes];
+            var a = A[p];
+            for (var dir = Track.Directions.Left; dir <= Track.Directions.Right; dir++)
             {
-                root.Left.Parent = root;
-            }
-            if (root.Right != null)
-            {
-                root.Right.Parent = root;
-            }
-            return root;
-        }
-#else
-                const int NumTypes = 6;
-
-    class Track
-    {
-        public enum Directions
-        {
-            Left = 0,
-            Right
-        }
-
-        public int Passes;
-        public int Turns;
-        public Directions Direction;
-        public int TypeIndex => GetTypeIndex(Direction, Turns);
-
-        public static int GetTypeIndex(Directions dir, int turns)
-            => (int)dir + turns * 2;
-
-        public static Track First(Directions dir)
-        {
-            return new Track
-            {
-                Passes = 1,
-                Turns = 0,
-                Direction = dir
-            };
-        }
-
-        public Track Follow()
-            => new Track
-            {
-                Passes = Passes + 1,
-                Turns = Turns,
-                Direction = Direction,
-            };
-
-        public Track Turn()
-            => new Track
-            {
-                Passes = Passes + 1,
-                Turns = Turns + 1,
-                Direction = 1 - Direction
-            };
-    }
-        W
-    bool Allowed(Track t)
-        => t.Turns % 2 == 0 ? t.Direction == Track.Directions.Left
-        : t.Direction == Track.Directions.Right;
-
-    bool Allowed(int typeIndex)
-    {
-        var dir = (Track.Directions)(typeIndex % 2);
-        var turns = typeIndex / 2;
-        return turns % 2 == 0 ? dir == Track.Directions.Left
-            : dir == Track.Directions.Right;
-    }
-
-    public int solution(int[] A)
-    {
-        var dp = new Track[A.Length][];
-        for (var i = 0; i < A.Length; i++)
-        {
-            Solve(A, i, dp);
-        }
-        var max = 0;
-        for (var i = A.Length - 1; i >= 0; i--)
-        {
-            if (max > i + 1) break;
-            var d = dp[i];
-            var p = d.Max(x => x?.Passes ?? 0);
-            if (p > max) max = p;
-        }
-        return max;
-    }
-
-    void Solve(int[] A, int p, Track[][] dp)
-    {
-        dp[p] = new Track[NumTypes];
-        var a = A[p];
-        for (var dir = Track.Directions.Left; dir <= Track.Directions.Right; dir++)
-        {
-            var b = Track.First(dir);
-            if (Allowed(b))
-            {
-                dp[p][b.TypeIndex] = b;
-            }
-            if (p == 0) continue;
-            var badcomp = dir > 0 ? 1 : -1;
-            for (var targetTurns = 0; targetTurns <= 2; targetTurns++)
-            {
-                var type = Track.GetTypeIndex(dir, targetTurns);
-                if (!Allowed(type)) continue;
-                var maxPasses = 0;
-                for (var j = p - 1; j >= maxPasses; j--)
+                var b = Track.First(dir);
+                if (Allowed(b))
                 {
-                    var aj = A[j];
-                    if (a.CompareTo(aj) == badcomp) continue;
-                    var solj = dp[j][type];
-                    if (solj == null) continue;
-                    if (solj.Passes > maxPasses)
-                    {
-                        maxPasses = solj.Passes;
-                        dp[p][type] = solj.Follow();
-                    }
+                    dp[p][b.TypeIndex] = b;
                 }
-                if (targetTurns > 0)
+                if (p == 0) continue;
+                var badcomp = dir > 0 ? 1 : -1;
+                for (var targetTurns = 0; targetTurns <= 2; targetTurns++)
                 {
-                    var type2 = Track.GetTypeIndex(1 - dir, targetTurns - 1);
+                    var type = Track.GetTypeIndex(dir, targetTurns);
+                    if (!Allowed(type)) continue;
+                    var maxPasses = 0;
                     for (var j = p - 1; j >= maxPasses; j--)
                     {
                         var aj = A[j];
                         if (a.CompareTo(aj) == badcomp) continue;
-                        var solj = dp[j][type2];
+                        var solj = dp[j][type];
                         if (solj == null) continue;
                         if (solj.Passes > maxPasses)
                         {
                             maxPasses = solj.Passes;
-                            dp[p][type] = solj.Turn();
+                            dp[p][type] = solj.Follow();
+                        }
+                    }
+                    if (targetTurns > 0)
+                    {
+                        var type2 = Track.GetTypeIndex(1 - dir, targetTurns - 1);
+                        for (var j = p - 1; j >= maxPasses; j--)
+                        {
+                            var aj = A[j];
+                            if (a.CompareTo(aj) == badcomp) continue;
+                            var solj = dp[j][type2];
+                            if (solj == null) continue;
+                            if (solj.Passes > maxPasses)
+                            {
+                                maxPasses = solj.Passes;
+                                dp[p][type] = solj.Turn();
+                            }
                         }
                     }
                 }
             }
         }
-    }
-#endif
+#endif // NEW_IMPLEMENTATION
 
 #if TEST
-            public object Run(params object[] args)
+        public object Run(params object[] args)
             => solution((int[])args[0]);
 
         public class Tester : BaseSelfTester<SlalomSkiing>
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
+                yield return CreateSingleInputSet(new[] { 1, 10, 4, 2, 7, 5, 9, 8, 6, 3 }, 7);
                 yield return CreateSingleInputSet(new[] { 15, 13, 5, 7, 4, 10, 12, 8, 2, 11, 6, 9, 3 }, 8);
                 yield return CreateSingleInputSet(new[] { 1, 5 }, 2);
             }
@@ -776,6 +529,9 @@ namespace codility.Lessons.Lesson90
                 yield return BaseTester.CreateInputSet(null, monotonic);
             }
         }
-    }
 #endif
+    } // class Solution or SlalomSkiing
+
+#if TEST
 }
+#endif

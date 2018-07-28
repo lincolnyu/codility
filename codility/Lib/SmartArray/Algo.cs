@@ -33,11 +33,18 @@ namespace codility.Lib.SmartArray
             CheckAll
         }
 
+        public enum MarkStmType
+        {
+            LeftStAndCenter,
+            RightStAndCenter,
+            CenterStOnly
+        }
+
         // Return original subtree mark token if it is a subtree marked node
         // only required when called with LeftAndCenter or RightAndCenter
         public delegate TStm MarkDelegate<TStm>(T n, MarkType mt);
 
-        public delegate void MarkStmelegate<TStm>(T n, TStm stm);
+        public delegate void MarkStmelegate<TStm>(T n, TStm stm, MarkStmType mst);
 
 #if !NEW_CSHARP
         delegate void Walk();
@@ -127,14 +134,6 @@ namespace codility.Lib.SmartArray
 
             var leftStack = new Stack<Node>();
             var rightStack = new Stack<Node>();
-            if (lpl != null)
-            {
-                leftStack.Push(lpl);
-            }
-            if (lpr != null)
-            {
-                rightStack.Push(lpr);
-            }
 
             var leftStmStackIndex = 0;
             TStm leftStm = default(TStm);
@@ -162,7 +161,7 @@ namespace codility.Lib.SmartArray
                 else
                 {
                     // devil's skin and hair
-                    leftStack.Push(pl.Left);
+                    leftStack.Push(pl);
                 }
                 lpl = pl;
             };
@@ -188,7 +187,7 @@ namespace codility.Lib.SmartArray
                 else
                 {
                     // devil's skin and hair
-                    rightStack.Push(pr.Right);
+                    rightStack.Push(pr);
                 }
                 lpr = pr;
             };
@@ -219,22 +218,30 @@ namespace codility.Lib.SmartArray
                 rightStmStackIndex = rightStack.Count;
             }
 
-            if (!leftStm.Equals(default(TStm)) && leftStmStackIndex > 0)
+            if (!leftStm.Equals(default(TStm)))
             {
                 for (; leftStmStackIndex < leftStack.Count(); leftStack.Pop()) ;
                 for (; leftStack.Count() > 0; )
                 {
                     var n = leftStack.Pop();
-                    markstm((T)n, leftStm);
+                    markstm((T)n, leftStm, MarkStmType.LeftStAndCenter);
+                }
+                if (left.Left != null)
+                {
+                    markstm((T)left.Left, leftStm, MarkStmType.CenterStOnly);
                 }
             }
-            if (!rightStm.Equals(default(TStm)) && rightStmStackIndex > 0)
+            if (!rightStm.Equals(default(TStm)))
             {
                 for (; rightStmStackIndex < rightStack.Count(); rightStack.Pop()) ;
                 for (; rightStack.Count() > 0;)
                 {
                     var n = rightStack.Pop();
-                    markstm((T)n, rightStm);
+                    markstm((T)n, rightStm, MarkStmType.RightStAndCenter);
+                }
+                if (right.Right != null)
+                {
+                    markstm((T)right.Right, rightStm, MarkStmType.CenterStOnly);
                 }
             }
 

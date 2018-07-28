@@ -103,9 +103,28 @@ namespace codility.Lib.SmartArray.Tests
                     return pod.MarkSubtree.HasValue;
                 }));
 
-            void markstm(Pod pod, int? stm)
+            void markstm(Pod pod, int? stm, A.MarkStmType mst)
             {
-                pod.MarkSubtree = stm;
+                switch (mst)
+                {
+                    case A.MarkStmType.LeftStAndCenter:
+                        pod.MarkSelf = stm;
+                        if (pod.Left != null)
+                        {
+                            ((Pod)pod.Left).MarkSubtree = stm;
+                        }
+                        break;
+                    case A.MarkStmType.RightStAndCenter:
+                        pod.MarkSelf = stm;
+                        if (pod.Right != null)
+                        {
+                            ((Pod)pod.Right).MarkSubtree = stm;
+                        }
+                        break;
+                    case A.MarkStmType.CenterStOnly:
+                        pod.MarkSubtree = stm;
+                        break;
+                }
             }
 
             var p3 = A.Find(root, getfinder(3));

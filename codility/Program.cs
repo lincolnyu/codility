@@ -117,8 +117,8 @@ namespace codility
             //Test<LongestPassword.Tester>();
             //Test<FloodDepth.Tester>();
 
-            //Test<SlalomSkiing.Tester>();
-            Profile<SlalomSkiing.Profiler>(2);
+            Test<SlalomSkiing.Tester>();
+            //Profile<SlalomSkiing.Profiler>(2);
             //new Lib.SmartArray.Tests.BasicTest().Test();
 
             //Test<DwarfsRafting.Tester>();
