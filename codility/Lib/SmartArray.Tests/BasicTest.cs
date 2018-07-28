@@ -44,14 +44,14 @@ namespace codility.Lib.SmartArray.Tests
                                     {
                                         ((Pod)p.Left).MarkSubtree = m;
                                     }
-                                    return p.MarkSubtree;
+                                    break;
                                 case A.MarkType.RightAndCenter:
                                     p.MarkSelf = m;
                                     if (p.Left != null)
                                     {
                                         ((Pod)p.Right).MarkSubtree = m;
                                     }
-                                    return p.MarkSubtree;
+                                    break;
                                 case A.MarkType.CenterAndCheck:
                                     if ((p.Left == null || ((Pod)p.Left).MarkSubtree == m)
                                         && (p.Right == null || ((Pod)p.Right).MarkSubtree == m))
@@ -64,7 +64,6 @@ namespace codility.Lib.SmartArray.Tests
                                     }
                                     break;
                             }
-                            return new int ?();
                         }
                     )
             );

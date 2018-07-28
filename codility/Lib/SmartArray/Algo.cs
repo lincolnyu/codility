@@ -41,7 +41,7 @@ namespace codility.Lib.SmartArray
 
         // Return original subtree mark token if it is a subtree marked node
         // only required when called with LeftAndCenter or RightAndCenter
-        public delegate TStm MarkDelegate<TStm>(T n, MarkType mt);
+        public delegate void MarkDelegate<TStm>(T n, MarkType mt);
 
         public delegate void MarkStmelegate<TStm>(T n, TStm stm, MarkStmType mst);
 
@@ -145,22 +145,23 @@ namespace codility.Lib.SmartArray
             Walk walkLeft = () =>
 #endif
             {
+                var stm = getstm((T)pl);
                 if (pl.Left == lpl)
                 {
                     // The implementing method must mark entire right subtree
                     // Howerver the implementing method is recommend to check if
                     // the left subtree is marked and decide if the whole subtree is
-                    var stm = mark((T)pl, MarkType.RightAndCenter);
-                    if (!stm.Equals(default(TStm)))
-                    {
-                        leftStm = stm;
-                        leftStmStackIndex = leftStack.Count;
-                    }
+                    mark((T)pl, MarkType.RightAndCenter);
                 }
                 else
                 {
                     // devil's skin and hair
                     leftStack.Push(pl);
+                }
+                if (!stm.Equals(default(TStm)))
+                {
+                    leftStm = stm;
+                    leftStmStackIndex = leftStack.Count;
                 }
                 lpl = pl;
             };
@@ -171,22 +172,23 @@ namespace codility.Lib.SmartArray
             Walk walkRight = () =>
 #endif
             {
+                var stm = getstm((T)pr);
                 if (pr.Right == lpr)
                 {
                     // The implementing method must mark entire left subtree
                     // Howerver the implementing method is recommended to check if
                     // the right subtree is marked and decide if the whole subtree is
-                    var stm = mark((T)pr, MarkType.LeftAndCenter);
-                    if (!stm.Equals(default(TStm)))
-                    {
-                        rightStm = stm;
-                        rightStmStackIndex = rightStack.Count;
-                    }
+                    mark((T)pr, MarkType.LeftAndCenter);
                 }
                 else
                 {
                     // devil's skin and hair
                     rightStack.Push(pr);
+                }
+                if (!stm.Equals(default(TStm)))
+                {
+                    rightStm = stm;
+                    rightStmStackIndex = rightStack.Count;
                 }
                 lpr = pr;
             };
@@ -210,7 +212,8 @@ namespace codility.Lib.SmartArray
 
             // Common ancestor
             // Mark the center and if both children are marked then mark the whole subtree
-            var rootstm = mark((T)pl, MarkType.CenterAndCheck);
+            var rootstm = getstm((T)pl); 
+            mark((T)pl, MarkType.CenterAndCheck);
             if (!rootstm.Equals(default(TStm)))
             {
                 leftStm = rightStm = rootstm;
@@ -242,9 +245,26 @@ namespace codility.Lib.SmartArray
                 rightStmStackIndex = rightStack.Count;
             }
 
+            for (; leftStmStackIndex < leftStack.Count(); )
+            {
+                var p = (T)leftStack.Pop();
+                var oldstm = getstm(p);
+                if (!oldstm.Equals(default(TStm)))
+                {
+                    markstm(p, oldstm, MarkStmType.LeftStAndCenter);
+                }
+            }
+            for (; rightStmStackIndex < rightStack.Count(); )
+            {
+                var p = (T)rightStack.Pop();
+                var oldstm = getstm(p);
+                if (!oldstm.Equals(default(TStm)))
+                {
+                    markstm(p, oldstm, MarkStmType.RightStAndCenter);
+                }
+            }
             if (!leftStm.Equals(default(TStm)))
             {
-                for (; leftStmStackIndex < leftStack.Count(); leftStack.Pop()) ;
                 for (; leftStack.Count() > 0; )
                 {
                     var n = leftStack.Pop();
@@ -257,7 +277,6 @@ namespace codility.Lib.SmartArray
             }
             if (!rightStm.Equals(default(TStm)))
             {
-                for (; rightStmStackIndex < rightStack.Count(); rightStack.Pop()) ;
                 for (; rightStack.Count() > 0;)
                 {
                     var n = rightStack.Pop();

@@ -2,8 +2,6 @@
 //#define DEBUG_PROGRAM
 //#define PRINT_PROGRAM
 
-#define NEW_IMPLEMENTATION
-
 using System.Linq;
 using System;
 using System.Collections.Generic;
@@ -16,24 +14,17 @@ using codility.TestFramework;
 
 namespace codility.Lessons.Lesson90
 {
-#if NEW_IMPLEMENTATION
     using Sa = Algo<SlalomSkiing.Pod>;
-#endif
 
     class SlalomSkiing : ITestee
 #else
-
-#if NEW_IMPLEMENTATION
     using Sa = Algo<Solution.Pod>;
-#endif
 
 // TODO add the lib code here...
 
     class Solution
 #endif
     {
-
-#if NEW_IMPLEMENTATION
         public class Pod : Node<Pod>, IComparable<Pod>
         {
             public int XPos;
@@ -52,81 +43,54 @@ namespace codility.Lessons.Lesson90
                 => XPos.CompareTo(other.XPos);
         }
 
-        private static void PassMaxSt(Pod p, int c)
-        {
-            if (p.MaxSt[c] > 0)
-            {
-                /*
-                if (p?.Left?.MaxSt[c] == 0)
-                {
-                    p.Left.MaxSt[c] = p.MaxSt[c];
-                }
-                if (p?.Right?.MaxSt[c] == 0)
-                {
-                    p.Right.MaxSt[c] = p.MaxSt[c];
-                }*/
-                p.MaxSt[c] = 0;
-            }
-        }
-
         private static Sa.MarkDelegate<int> GenMark(int c, int m)
             => (p, mt) =>
             {
                 switch(mt)
                 {
-                    case Sa.MarkType.LeftAndCenter:
+                case Sa.MarkType.LeftAndCenter:
+                    if (p.Right == null || p.Right.MaxSt[c] == m)
+                    {
+                        p.MaxSt[c] = m;
+                    }
+                    else
+                    {
+                        if (p.Left != null)
                         {
-                            int stm = p.MaxSt[c];
-                            if (p.Right == null || p.Right.MaxSt[c] == m)
-                            {
-                                p.MaxSt[c] = m;
-                            }
-                            else
-                            {
-                                if (p.Left != null)
-                                {
-                                    p.Left.MaxSt[c] = m;
-                                }
-                                p.Max[c] = m;
-                                PassMaxSt(p, c);
-                            }
-                            return stm;
+                            p.Left.MaxSt[c] = m;
                         }
-                    case Sa.MarkType.RightAndCenter:
+                        p.Max[c] = m;
+                        p.MaxSt[c] = 0;
+                    }
+                    break;
+                case Sa.MarkType.RightAndCenter:
+                    if (p.Left == null || p.Left.MaxSt[c] == m)
+                    {
+                        p.MaxSt[c] = m;
+                    }
+                    else
+                    {
+                        if (p.Right != null)
                         {
-                            int stm = p.MaxSt[c];
-                            if (p.Left == null || p.Left.MaxSt[c] == m)
-                            {
-                                p.MaxSt[c] = m;
-                            }
-                            else
-                            {
-                                if (p.Right != null)
-                                {
-                                    p.Right.MaxSt[c] = m;
-                                }
-                                p.Max[c] = m;
-                                PassMaxSt(p, c);
-                            }
-                            return stm;
+                            p.Right.MaxSt[c] = m;
                         }
-                    case Sa.MarkType.CenterAndCheck:
-                        {
-                            var stm = p.MaxSt[c];
-                            if ((p.Left == null || p.Left.MaxSt[c] == m)
-                                 && (p.Right == null || p.Right.MaxSt[c] == m))
-                            {
-                                p.MaxSt[c] = m;
-                            }
-                            else
-                            {
-                                p.Max[c] = m;
-                                PassMaxSt(p, c);
-                            }
-                            return stm;
-                        }
+                        p.Max[c] = m;
+                        p.MaxSt[c] = 0;
+                    }
+                    break;
+                case Sa.MarkType.CenterAndCheck:
+                    if ((p.Left == null || p.Left.MaxSt[c] == m)
+                            && (p.Right == null || p.Right.MaxSt[c] == m))
+                    {
+                        p.MaxSt[c] = m;
+                    }
+                    else
+                    {
+                        p.Max[c] = m;
+                        p.MaxSt[c] = 0;
+                    }
+                    break;
                 }
-                return 0;
             };
 
         private static Sa.MarkStmelegate<int> GenMarkStm(int c)
@@ -231,6 +195,14 @@ namespace codility.Lessons.Lesson90
         public int solution(int[] A)
         {
             var N = A.Length;
+#if PRINT_PROGRAM
+            Console.WriteLine("A:");
+            for (var i = 0; i < N; i++)
+            {
+                Console.Write($" {A[i]}");
+            }
+            Console.WriteLine();
+#endif
             var pods = Sa.Load(A, x => new Pod { XPos = x }).ToArray();
             for (var i = 0; i < N; i++)
             {
@@ -359,7 +331,6 @@ namespace codility.Lessons.Lesson90
                     System.Diagnostics.Debug.Assert(cr);
                 }
 #endif
-                
                 // 2
                 var new2 = Math.Max(pod2 + 1, max1 + 1); //todo also consider max0+1?
                 var end2 = i == 0 ? N : FindFirstNoLess(root, new2, 2, false, N);
@@ -388,132 +359,133 @@ namespace codility.Lessons.Lesson90
             return Math.Max(Math.Max(max0, max1), max2);
         }
 
-#else // NEW_IMPLEMENTATION
-        const int NumTypes = 6;
-
-        class Track
+        class RefSolution
         {
-            public enum Directions
+            const int NumTypes = 6;
+
+            class Track
             {
-                Left = 0,
-                Right
-            }
-
-            public int Passes;
-            public int Turns;
-            public Directions Direction;
-            public int TypeIndex => GetTypeIndex(Direction, Turns);
-
-            public static int GetTypeIndex(Directions dir, int turns)
-                => (int)dir + turns * 2;
-
-            public static Track First(Directions dir)
-            {
-                return new Track
+                public enum Directions
                 {
-                    Passes = 1,
-                    Turns = 0,
-                    Direction = dir
-                };
-            }
-
-            public Track Follow()
-                => new Track
-                {
-                    Passes = Passes + 1,
-                    Turns = Turns,
-                    Direction = Direction,
-                };
-
-            public Track Turn()
-                => new Track
-                {
-                    Passes = Passes + 1,
-                    Turns = Turns + 1,
-                    Direction = 1 - Direction
-                };
-        }
-
-        bool Allowed(Track t)
-            => t.Turns % 2 == 0 ? t.Direction == Track.Directions.Left
-            : t.Direction == Track.Directions.Right;
-
-        bool Allowed(int typeIndex)
-        {
-            var dir = (Track.Directions)(typeIndex % 2);
-            var turns = typeIndex / 2;
-            return turns % 2 == 0 ? dir == Track.Directions.Left
-                : dir == Track.Directions.Right;
-        }
-
-        public int solution(int[] A)
-        {
-            var dp = new Track[A.Length][];
-            for (var i = 0; i < A.Length; i++)
-            {
-                Solve(A, i, dp);
-            }
-            var max = 0;
-            for (var i = A.Length - 1; i >= 0; i--)
-            {
-                if (max > i + 1) break;
-                var d = dp[i];
-                var p = d.Max(x => x?.Passes ?? 0);
-                if (p > max) max = p;
-            }
-            return max;
-        }
-
-        void Solve(int[] A, int p, Track[][] dp)
-        {
-            dp[p] = new Track[NumTypes];
-            var a = A[p];
-            for (var dir = Track.Directions.Left; dir <= Track.Directions.Right; dir++)
-            {
-                var b = Track.First(dir);
-                if (Allowed(b))
-                {
-                    dp[p][b.TypeIndex] = b;
+                    Left = 0,
+                    Right
                 }
-                if (p == 0) continue;
-                var badcomp = dir > 0 ? 1 : -1;
-                for (var targetTurns = 0; targetTurns <= 2; targetTurns++)
+
+                public int Passes;
+                public int Turns;
+                public Directions Direction;
+                public int TypeIndex => GetTypeIndex(Direction, Turns);
+
+                public static int GetTypeIndex(Directions dir, int turns)
+                    => (int)dir + turns * 2;
+
+                public static Track First(Directions dir)
                 {
-                    var type = Track.GetTypeIndex(dir, targetTurns);
-                    if (!Allowed(type)) continue;
-                    var maxPasses = 0;
-                    for (var j = p - 1; j >= maxPasses; j--)
+                    return new Track
                     {
-                        var aj = A[j];
-                        if (a.CompareTo(aj) == badcomp) continue;
-                        var solj = dp[j][type];
-                        if (solj == null) continue;
-                        if (solj.Passes > maxPasses)
-                        {
-                            maxPasses = solj.Passes;
-                            dp[p][type] = solj.Follow();
-                        }
+                        Passes = 1,
+                        Turns = 0,
+                        Direction = dir
+                    };
+                }
+
+                public Track Follow()
+                    => new Track
+                    {
+                        Passes = Passes + 1,
+                        Turns = Turns,
+                        Direction = Direction,
+                    };
+
+                public Track Turn()
+                    => new Track
+                    {
+                        Passes = Passes + 1,
+                        Turns = Turns + 1,
+                        Direction = 1 - Direction
+                    };
+            }
+
+            bool Allowed(Track t)
+                => t.Turns % 2 == 0 ? t.Direction == Track.Directions.Left
+                : t.Direction == Track.Directions.Right;
+
+            bool Allowed(int typeIndex)
+            {
+                var dir = (Track.Directions)(typeIndex % 2);
+                var turns = typeIndex / 2;
+                return turns % 2 == 0 ? dir == Track.Directions.Left
+                    : dir == Track.Directions.Right;
+            }
+
+            public int solution(int[] A)
+            {
+                var dp = new Track[A.Length][];
+                for (var i = 0; i < A.Length; i++)
+                {
+                    Solve(A, i, dp);
+                }
+                var max = 0;
+                for (var i = A.Length - 1; i >= 0; i--)
+                {
+                    if (max > i + 1) break;
+                    var d = dp[i];
+                    var p = d.Max(x => x?.Passes ?? 0);
+                    if (p > max) max = p;
+                }
+                return max;
+            }
+
+            void Solve(int[] A, int p, Track[][] dp)
+            {
+                dp[p] = new Track[NumTypes];
+                var a = A[p];
+                for (var dir = Track.Directions.Left; dir <= Track.Directions.Right; dir++)
+                {
+                    var b = Track.First(dir);
+                    if (Allowed(b))
+                    {
+                        dp[p][b.TypeIndex] = b;
                     }
-                    if (targetTurns > 0)
+                    if (p == 0) continue;
+                    var badcomp = dir > 0 ? 1 : -1;
+                    for (var targetTurns = 0; targetTurns <= 2; targetTurns++)
                     {
-                        var type2 = Track.GetTypeIndex(1 - dir, targetTurns - 1);
+                        var type = Track.GetTypeIndex(dir, targetTurns);
+                        if (!Allowed(type)) continue;
+                        var maxPasses = 0;
                         for (var j = p - 1; j >= maxPasses; j--)
                         {
                             var aj = A[j];
                             if (a.CompareTo(aj) == badcomp) continue;
-                            var solj = dp[j][type2];
+                            var solj = dp[j][type];
                             if (solj == null) continue;
                             if (solj.Passes > maxPasses)
                             {
                                 maxPasses = solj.Passes;
-                                dp[p][type] = solj.Turn();
+                                dp[p][type] = solj.Follow();
+                            }
+                        }
+                        if (targetTurns > 0)
+                        {
+                            var type2 = Track.GetTypeIndex(1 - dir, targetTurns - 1);
+                            for (var j = p - 1; j >= maxPasses; j--)
+                            {
+                                var aj = A[j];
+                                if (a.CompareTo(aj) == badcomp) continue;
+                                var solj = dp[j][type2];
+                                if (solj == null) continue;
+                                if (solj.Passes > maxPasses)
+                                {
+                                    maxPasses = solj.Passes;
+                                    dp[p][type] = solj.Turn();
+                                }
                             }
                         }
                     }
                 }
             }
         }
-#endif // NEW_IMPLEMENTATION
 
 #if TEST
         public object Run(params object[] args)
@@ -523,6 +495,22 @@ namespace codility.Lessons.Lesson90
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
+                {
+                    var rand = new Random(1);
+                    var seq = rand.GenerateRandomSequence(9);
+                    var rs = new RefSolution();
+                    var expected = rs.solution(seq);
+                    yield return CreateSingleInputSet(seq, expected);
+                }
+
+                {
+                    var rand = new Random(18);
+                    var seq = rand.GenerateRandomSequence(8);
+                    var rs = new RefSolution();
+                    var expected = rs.solution(seq);
+                    yield return CreateSingleInputSet(seq, expected);
+                }
+
                 yield return CreateSingleInputSet(new[] { 5, 6, 7, 8, 9, 10, 4, 3, 1, 2 }, 10);
                 yield return CreateSingleInputSet(new[] { 1, 10, 4, 2, 7, 5, 9, 8, 6, 3 }, 7);
                 yield return CreateSingleInputSet(new[] { 15, 13, 5, 7, 4, 10, 12, 8, 2, 11, 6, 9, 3 }, 8);
