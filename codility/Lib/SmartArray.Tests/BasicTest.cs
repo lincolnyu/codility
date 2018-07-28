@@ -31,8 +31,8 @@ namespace codility.Lib.SmartArray.Tests
             var root = A.Treeify(ilist);
             // 1,2,3,4,5,6,7,8,9,12,13
 
-            var genmark = new Func<int, A.MarkDelegate>(
-                m => new A.MarkDelegate
+            var genmark = new Func<int, A.MarkDelegate<int?>>(
+                m => new A.MarkDelegate<int?>
                     (
                         (p, mt) =>
                         {
@@ -44,14 +44,14 @@ namespace codility.Lib.SmartArray.Tests
                                     {
                                         ((Pod)p.Left).MarkSubtree = m;
                                     }
-                                    break;
+                                    return p.MarkSubtree;
                                 case A.MarkType.RightAndCenter:
                                     p.MarkSelf = m;
                                     if (p.Left != null)
                                     {
                                         ((Pod)p.Right).MarkSubtree = m;
                                     }
-                                    break;
+                                    return p.MarkSubtree;
                                 case A.MarkType.CenterAndCheck:
                                     if ((p.Left == null || ((Pod)p.Left).MarkSubtree == m)
                                         && (p.Right == null || ((Pod)p.Right).MarkSubtree == m))
@@ -72,6 +72,7 @@ namespace codility.Lib.SmartArray.Tests
                                     }
                                     break;
                             }
+                            return new int ?();
                         }
                     )
             );
@@ -102,9 +103,14 @@ namespace codility.Lib.SmartArray.Tests
                     return pod.MarkSubtree.HasValue;
                 }));
 
+            void markstm(Pod pod, int? stm)
+            {
+                pod.MarkSubtree = stm;
+            }
+
             var p3 = A.Find(root, getfinder(3));
             var p6 = A.Find(root, getfinder(6));
-            A.MarkRange(p3, p6, genmark(5));
+            A.MarkRange<int?>(p3, p6, genmark(5), markstm);
 
             for (var i = 0; i < ilist.Length; i++)
             {
@@ -123,7 +129,7 @@ namespace codility.Lib.SmartArray.Tests
 
             var p5 = A.Find(root, getfinder(5));
             var p9 = A.Find(root, getfinder(9));
-            A.MarkRange(p5, p9, genmark(3));
+            A.MarkRange<int?>(p5, p9, genmark(3), markstm);
 
             for (var i = 0; i < ilist.Length; i++)
             {

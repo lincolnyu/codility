@@ -33,8 +33,11 @@ namespace codility.Lib.SmartArray
             CheckAll
         }
 
-        public delegate void MarkDelegate(T n, MarkType mt);
-        public delegate void UnmarkSubtreeDelegate(T n);
+        // Return original subtree mark token if it is a subtree marked node
+        // only required when called with LeftAndCenter or RightAndCenter
+        public delegate TStm MarkDelegate<TStm>(T n, MarkType mt);
+
+        public delegate void MarkStmelegate<TStm>(T n, TStm stm);
 
 #if !NEW_CSHARP
         delegate void Walk();
@@ -114,12 +117,29 @@ namespace codility.Lib.SmartArray
             return null;
         }
 
-        public static void MarkRange(T left, T right, MarkDelegate mark)
+        public static void MarkRange<TStm>(T left, T right, MarkDelegate<TStm> mark,
+            MarkStmelegate<TStm> markstm)
         {
             var lpl = left.Left;
-            var pl = left;
+            var pl = (Node)left;
             var lpr = right.Right;
-            var pr = right;
+            var pr = (Node)right;
+
+            var leftStack = new Stack<Node>();
+            var rightStack = new Stack<Node>();
+            if (lpl != null)
+            {
+                leftStack.Push(lpl);
+            }
+            if (lpr != null)
+            {
+                rightStack.Push(lpr);
+            }
+
+            var leftStmStackIndex = 0;
+            TStm leftStm = default(TStm);
+            var rightStmStackIndex = 0;
+            TStm rightStm = default(TStm);
 
 #if LOCAL_FUNCTION
             void walkLeft()
@@ -129,9 +149,20 @@ namespace codility.Lib.SmartArray
             {
                 if (pl.Left == lpl)
                 {
+                    // The implementing method must mark entire right subtree
                     // Howerver the implementing method is recommend to check if
                     // the left subtree is marked and decide if the whole subtree is
-                    mark(pl, MarkType.RightAndCenter);
+                    var stm = mark((T)pl, MarkType.RightAndCenter);
+                    if (!stm.Equals(default(TStm)))
+                    {
+                        leftStm = stm;
+                        leftStmStackIndex = leftStack.Count;
+                    }
+                }
+                else
+                {
+                    // devil's skin and hair
+                    leftStack.Push(pl.Left);
                 }
                 lpl = pl;
             };
@@ -144,35 +175,73 @@ namespace codility.Lib.SmartArray
             {
                 if (pr.Right == lpr)
                 {
+                    // The implementing method must mark entire left subtree
                     // Howerver the implementing method is recommended to check if
                     // the right subtree is marked and decide if the whole subtree is
-                    mark(pr, MarkType.LeftAndCenter);
+                    var stm = mark((T)pr, MarkType.LeftAndCenter);
+                    if (!stm.Equals(default(TStm)))
+                    {
+                        rightStm = stm;
+                        rightStmStackIndex = rightStack.Count;
+                    }
+                }
+                else
+                {
+                    // devil's skin and hair
+                    rightStack.Push(pr.Right);
                 }
                 lpr = pr;
             };
 
-            for (; pl.Depth > right.Depth; pl = (T)pl.Parent)
+            for (; pl.Depth > right.Depth; pl = pl.Parent)
             {
                 walkLeft();
             }
-            for (; pr.Depth > left.Depth; pr = (T)pr.Parent)
+            for (; pr.Depth > left.Depth; pr = pr.Parent)
             {
                 walkRight();
             }
 
-            for (; pl != pr; pl = (T)pl.Parent, pr = (T)pr.Parent)
+            for (; pl != pr; pl = pl.Parent, pr = pr.Parent)
             {
                 walkLeft();
                 walkRight();
             }
 
+            // Common ancestor
             // Mark the center and if both children are marked then mark the whole subtree
-            mark(pl, MarkType.CenterAndCheck);
-            
-            for (pl = (T)pl.Parent; pl != null; pl = (T)pl.Parent)
+            var rootstm = mark((T)pl, MarkType.CenterAndCheck);
+            if (!rootstm.Equals(default(TStm)))
+            {
+                leftStm = rootstm;
+                rightStm = rootstm;
+                leftStmStackIndex = leftStack.Count;
+                rightStmStackIndex = rightStack.Count;
+            }
+
+            if (!leftStm.Equals(default(TStm)) && leftStmStackIndex > 0)
+            {
+                for (; leftStmStackIndex < leftStack.Count(); leftStack.Pop()) ;
+                for (; leftStack.Count() > 0; )
+                {
+                    var n = leftStack.Pop();
+                    markstm((T)n, leftStm);
+                }
+            }
+            if (!rightStm.Equals(default(TStm)) && rightStmStackIndex > 0)
+            {
+                for (; rightStmStackIndex < rightStack.Count(); rightStack.Pop()) ;
+                for (; rightStack.Count() > 0;)
+                {
+                    var n = rightStack.Pop();
+                    markstm((T)n, rightStm);
+                }
+            }
+
+            for (pl = pl.Parent; pl != null; pl = pl.Parent)
             {
                 // If only the current and both children are marked then mark the whole subtree
-                mark(pl, MarkType.CheckAll);
+                mark((T)pl, MarkType.CheckAll);
             }
         }
     }

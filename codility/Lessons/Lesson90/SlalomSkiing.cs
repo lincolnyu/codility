@@ -1,7 +1,7 @@
 ﻿#define TEST
 //#define DEBUG_PROGRAM
 
-#define NEW_IMPLEMENTATION2
+#define NEW_IMPLEMENTATION
 using System.Linq;
 using System;
 using codility.Helpers;
@@ -47,6 +47,7 @@ namespace codility.Lessons.Lesson90
         {
             if (p.MaxSt[c] > 0)
             {
+                /*
                 if (p?.Left?.MaxSt[c] == 0)
                 {
                     p.Left.MaxSt[c] = p.MaxSt[c];
@@ -54,58 +55,67 @@ namespace codility.Lessons.Lesson90
                 if (p?.Right?.MaxSt[c] == 0)
                 {
                     p.Right.MaxSt[c] = p.MaxSt[c];
-                }
+                }*/
                 p.MaxSt[c] = 0;
             }
         }
 
-        private static Sa.MarkDelegate GenMark(int c, int m)
+        private static Sa.MarkDelegate<int> GenMark(int c, int m)
             => (p, mt) =>
             {
                 switch(mt)
                 {
                     case Sa.MarkType.LeftAndCenter:
-                        if (p.Right == null || p.Right.MaxSt[c] == m)
                         {
-                            p.MaxSt[c] = m;
-                        }
-                        else
-                        {
-                            if(p.Left != null)
+                            int stm = p.MaxSt[c];
+                            if (p.Right == null || p.Right.MaxSt[c] == m)
                             {
-                                p.Left.MaxSt[c] = m;
+                                p.MaxSt[c] = m;
                             }
-                            p.Max[c] = m;
-                            PassMaxSt(p, c);
+                            else
+                            {
+                                if (p.Left != null)
+                                {
+                                    p.Left.MaxSt[c] = m;
+                                }
+                                p.Max[c] = m;
+                                PassMaxSt(p, c);
+                            }
+                            return stm;
                         }
-                        break;
                     case Sa.MarkType.RightAndCenter:
-                        if (p.Left == null || p.Left.MaxSt[c] == m)
                         {
-                            p.MaxSt[c] = m;
-                        }
-                        else
-                        {
-                            if (p.Right != null)
+                            int stm = p.MaxSt[c];
+                            if (p.Left == null || p.Left.MaxSt[c] == m)
                             {
-                                p.Right.MaxSt[c] = m;
+                                p.MaxSt[c] = m;
                             }
-                            p.Max[c] = m;
-                            PassMaxSt(p, c);
+                            else
+                            {
+                                if (p.Right != null)
+                                {
+                                    p.Right.MaxSt[c] = m;
+                                }
+                                p.Max[c] = m;
+                                PassMaxSt(p, c);
+                            }
+                            return stm;
                         }
-                        break;
                     case Sa.MarkType.CenterAndCheck:
-                        if ((p.Left == null || p.Left.MaxSt[c] == m)
-                            && (p.Right == null || p.Right.MaxSt[c] == m))
                         {
-                            p.MaxSt[c] = m;
+                            var stm = p.MaxSt[c];
+                            if ((p.Left == null || p.Left.MaxSt[c] == m)
+                                 && (p.Right == null || p.Right.MaxSt[c] == m))
+                            {
+                                p.MaxSt[c] = m;
+                            }
+                            else
+                            {
+                                p.Max[c] = m;
+                                PassMaxSt(p, c);
+                            }
+                            return stm;
                         }
-                        else
-                        {
-                            p.Max[c] = m;
-                            PassMaxSt(p, c);
-                        }
-                        break;
                     case Sa.MarkType.CheckAll:
                         if ((p.Left == null || p.Left.MaxSt[c] == m)
                             && (p.Right == null || p.Right.MaxSt[c] == m)
@@ -115,10 +125,19 @@ namespace codility.Lessons.Lesson90
                         }
                         break;
                 }
+                return 0;
             };
-        
+
+        private static Sa.MarkStmelegate<int> GenMarkStm(int c)
+            => (n, stm) =>
+            {
+                n.MaxSt[c] = stm;
+                n.Parent.MaxSt[c] = 0;
+                n.Parent.Max[c] = stm;
+            };
+
         private static void Mark(Pod left, Pod right, int c, int m)
-            => Sa.MarkRange(left, right, GenMark(c, m));
+            => Sa.MarkRange<int>(left, right, GenMark(c, m), GenMarkStm(c));
 
         private static int GetMark(Pod root, int i, int c)
         {
@@ -214,6 +233,18 @@ namespace codility.Lessons.Lesson90
 
 #if true || DEBUG_PROGRAM
             Console.WriteLine($"N = {N}");
+            void SnapShot(out int[] p0, out int[] p1, out int[] p2)
+            {
+                p0 = new int[N];
+                p1 = new int[N];
+                p2 = new int[N];
+                for (var i = 0; i < N; i++)
+                {
+                    p0[i] = GetMark(root, i, 0);
+                    p1[i] = GetMark(root, i, 1);
+                    p2[i] = GetMark(root, i, 2);
+                }
+            }
             void Print(int c)
             {
                 for (var i = 0; i < N; i++)
@@ -223,48 +254,88 @@ namespace codility.Lessons.Lesson90
                 }
                 Console.WriteLine();
             }
+            void PrintSnapshot(int[] snapshot)
+            {
+                for (var i = 0; i < N; i++)
+                {
+                    Console.Write($" {snapshot[i]}");
+                }
+                Console.WriteLine();
+            }
+            bool CheckMonotonity(int c, bool decrease)
+            {
+                int? last = null;
+                for (var i = 0; i < N; i++)
+                {
+                    var m = GetMark(root, i, c);
+                    if (!decrease && m < last)
+                    {
+                        return false;
+                    }
+                    if (decrease && m > last)
+                    {
+                        return false;
+                    }
+                    last = m;
+                }
+                return true;
+            }
 #endif
             for (var i = 0; i < N; i++)
             {
                 var podi = ytopod[i];
                 var pod = pods[podi];
 
-                if (i == 171)
-                {
-                    Print(0);
-                }
-
                 var pod0 = i == 0 ? 0 : GetMark(root, podi, 0);
                 var pod1 = i == 0 ? 0 : GetMark(root, podi, 1);
                 var pod2 = i == 0 ? 0 : GetMark(root, podi, 2);
 #if DEBUG_PROGRAM
+                SnapShot(out var oldp0, out var oldp1, out var oldp2);
                 Console.WriteLine($"{i}: {podi}: {pod0} {pod1} {pod2}");
 #endif
              
-                // 1
+                // 0
                 var new0 = pod0 + 1;
                 var end0 = i == 0 ? N : FindFirstNoLess(root, new0, 0, false, N);
-                //Console.WriteLine($" mark {pod.Index} to {end0 - 1} as {new0}");
                 Mark(pod, pods[end0 - 1], 0, new0);
 #if DEBUG_PROGRAM
-                Print(0);
+                var cr = CheckMonotonity(0, false);
+                if (!cr)
+                {
+                    PrintSnapshot(oldp0);
+                    Console.WriteLine($" 0 mark {pod.Index} to {end0 - 1} as {new0}");
+                    Print(0);
+                    System.Diagnostics.Debug.Assert(false);
+                }
 #endif
-                // 2
+                // 1
                 var new1 = Math.Max(pod1 + 1, max0 + 1);
                 var end1 = i == 0 ? -1 : FindFirstNoLess(root, new1, 1, true, N);
-                //Console.WriteLine($" mark {end1 + 1} to {pod.Index} as {new1}");
                 Mark(pods[end1 + 1], pod, 1, new1);
 #if DEBUG_PROGRAM
-                Print(1);
+                cr = CheckMonotonity(1, true);
+                if (!cr)
+                {
+                    PrintSnapshot(oldp1);
+                    Console.WriteLine($" 1 mark {end1 + 1} to {pod.Index} as {new1}");
+                    Print(1);
+                    System.Diagnostics.Debug.Assert(false);
+                }
 #endif
-
-                // 3
+                
+                // 2
                 var new2 = Math.Max(pod2 + 1, max1 + 1); //todo also consider max0+1?
                 var end2 = i == 0 ? N : FindFirstNoLess(root, new2, 2, false, N);
-                //Console.WriteLine($" mark {pod.Index} to {end2 - 1} as {new2}");
                 Mark(pod, pods[end2 - 1], 2, new2);
 #if DEBUG_PROGRAM
-                Print(2);
+                cr = CheckMonotonity(2, false);
+                if (!cr)
+                {
+                    PrintSnapshot(oldp2);
+                    Console.WriteLine($" 2 mark {pod.Index} to {end2 - 1} as {new2}");
+                    Print(2);
+                    System.Diagnostics.Debug.Assert(false);
+                }
 #endif
 
                 if (new0 > max0) max0 = new0;
