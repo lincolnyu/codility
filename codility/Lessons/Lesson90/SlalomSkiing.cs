@@ -1,4 +1,5 @@
 ﻿#define TEST
+#define PROFILING
 //#define DEBUG_PROGRAM
 //#define PRINT_PROGRAM
 
@@ -192,8 +193,52 @@ namespace codility.Lessons.Lesson90
             }
         }
 
+#if PROFILING
+        class SpeedProfiler
+        {
+            public class Entry
+            {
+                public TimeSpan TotalDuration;
+                public DateTime Start;
+            }
+
+            public Dictionary<string, Entry> DurationMap = new Dictionary<string, Entry>();
+
+            public void Start(string name)
+            {
+                if (!DurationMap.TryGetValue(name, out var entry))
+                {
+                    entry = new Entry();
+                    DurationMap[name] = entry;
+                }
+                entry.Start = DateTime.UtcNow;
+            }
+            public void Stop(string name)
+            {
+                if (DurationMap.TryGetValue(name, out var entry))
+                {
+                    entry.TotalDuration += DateTime.UtcNow - entry.Start;
+                }
+            }
+            public void Display()
+            {
+                foreach (var kvp in DurationMap)
+                {
+                    var key = kvp.Key;
+                    var val = kvp.Value;
+                    Console.WriteLine($"{key} : {val.TotalDuration.TotalMilliseconds} ms");
+                }
+            }
+        }
+#endif
+
         public int solution(int[] A)
         {
+#if PROFILING
+            var profiler = new SpeedProfiler();
+            profiler.Start("Loading and Sorting");
+#endif
+
             var N = A.Length;
 #if PRINT_PROGRAM
             Console.WriteLine("A:");
@@ -219,9 +264,15 @@ namespace codility.Lessons.Lesson90
             {
                 ytopod[pods[i].YPos] = i;
             }
-
+#if PROFILING
+            profiler.Stop("Loading and Sorting");
+            profiler.Start("Treefication");
+#endif
             var root = Sa.Treeify(pods);
-
+#if PROFILING
+            profiler.Stop("Treefication");
+            profiler.Start("DP");
+#endif
             var max0 = 0;
             var max1 = 0;
             var max2 = 0;
@@ -276,14 +327,24 @@ namespace codility.Lessons.Lesson90
                 return true;
             }
 #endif
+
             for (var i = 0; i < N; i++)
             {
                 var podi = ytopod[i];
                 var pod = pods[podi];
 
+#if PROFILING
+                profiler.Start("Get Mark");
+#endif
+
                 var pod0 = i == 0 ? 0 : GetMark(root, podi, 0);
                 var pod1 = i == 0 ? 0 : GetMark(root, podi, 1);
                 var pod2 = i == 0 ? 0 : GetMark(root, podi, 2);
+
+#if PROFILING
+                profiler.Stop("Get Mark");
+#endif
+
 #if PRINT_PROGRAM
                 Console.WriteLine($"{i}:");
 #endif
@@ -293,8 +354,19 @@ namespace codility.Lessons.Lesson90
 
                 // 0
                 var new0 = pod0 + 1;
+
+#if PROFILING
+                profiler.Start("Find First");
+#endif
                 var end0 = i == 0 ? N : FindFirstNoLess(root, new0, 0, false, N);
+#if PROFILING
+                profiler.Stop("Find First");
+                profiler.Start("Mark");
+#endif
                 Mark(pod, pods[end0 - 1], 0, new0);
+#if PROFILING
+                profiler.Stop("Mark");
+#endif
 #if DEBUG_PROGRAM
                 var cr = CheckMonotonity(0, false);
 #if !PRINT_PROGRAM
@@ -312,9 +384,19 @@ namespace codility.Lessons.Lesson90
                 }
 #endif
                 // 1
+#if PROFILING
+                profiler.Start("Find First");
+#endif
                 var new1 = Math.Max(pod1 + 1, max0 + 1);
                 var end1 = i == 0 ? -1 : FindFirstNoLess(root, new1, 1, true, N);
+#if PROFILING
+                profiler.Stop("Find First");
+                profiler.Start("Mark");
+#endif
                 Mark(pods[end1 + 1], pod, 1, new1);
+#if PROFILING
+                profiler.Stop("Mark");
+#endif
 #if DEBUG_PROGRAM
                 cr = CheckMonotonity(1, true);
 #if !PRINT_PROGRAM
@@ -332,9 +414,19 @@ namespace codility.Lessons.Lesson90
                 }
 #endif
                 // 2
+#if PROFILING
+                profiler.Start("Find First");
+#endif
                 var new2 = Math.Max(pod2 + 1, max1 + 1); //todo also consider max0+1?
                 var end2 = i == 0 ? N : FindFirstNoLess(root, new2, 2, false, N);
+#if PROFILING
+                profiler.Stop("Find First");
+                profiler.Start("Mark");
+#endif
                 Mark(pod, pods[end2 - 1], 2, new2);
+#if PROFILING
+                profiler.Stop("Mark");
+#endif
 #if DEBUG_PROGRAM
                 cr = CheckMonotonity(2, false);
 #if !PRINT_PROGRAM
@@ -356,6 +448,10 @@ namespace codility.Lessons.Lesson90
                 if (new1 > max1) max1 = new1;
                 if (new2 > max2) max2 = new2;
             }
+#if PROFILING
+            profiler.Stop("DP");
+            profiler.Display();
+#endif
             return Math.Max(Math.Max(max0, max1), max2);
         }
 
@@ -522,7 +618,7 @@ namespace codility.Lessons.Lesson90
         {
             public override IEnumerable<BaseTester.TestSet> GetProfilingTestSets()
             {
-                const int size = 16000;
+                const int size = 100000;
                 var rand = new Random(123);
                 var seq = rand.GenerateRandomSequence(size);
                 yield return BaseTester.CreateInputSet(null, seq);
