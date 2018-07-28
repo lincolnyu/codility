@@ -1,5 +1,5 @@
 ﻿#define TEST
-#define PROFILING
+//#define PROFILING
 //#define DEBUG_PROGRAM
 //#define PRINT_PROGRAM
 
@@ -183,14 +183,7 @@ namespace codility.Lessons.Lesson90
                 }
             }
 
-            if (rev)
-            {
-                return (lastMax < t) ? lastp.Index - 1 : lastp.Index;
-            }
-            else
-            {
-                return (lastMax < t) ? lastp.Index + 1 : lastp.Index;
-            }
+            return (lastMax < t) ? (rev ? lastp.Index - 1 : lastp.Index + 1) : lastp.Index;
         }
 
 #if PROFILING
@@ -602,6 +595,14 @@ namespace codility.Lessons.Lesson90
                 {
                     var rand = new Random(18);
                     var seq = rand.GenerateRandomSequence(8);
+                    var rs = new RefSolution();
+                    var expected = rs.solution(seq);
+                    yield return CreateSingleInputSet(seq, expected);
+                }
+
+                {
+                    var rand = new Random(123);
+                    var seq = rand.GenerateRandomSequence(16000);
                     var rs = new RefSolution();
                     var expected = rs.solution(seq);
                     yield return CreateSingleInputSet(seq, expected);
