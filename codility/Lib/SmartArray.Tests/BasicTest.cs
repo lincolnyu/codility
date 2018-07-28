@@ -63,14 +63,6 @@ namespace codility.Lib.SmartArray.Tests
                                         p.MarkSelf = m;
                                     }
                                     break;
-                                case A.MarkType.CheckAll:
-                                    if ((p.Left == null || ((Pod)p.Left).MarkSubtree == m)
-                                          && (p.Right == null || ((Pod)p.Right).MarkSubtree == m)
-                                          && p.MarkSelf == m)
-                                    {
-                                        p.MarkSubtree = m;
-                                    }
-                                    break;
                             }
                             return new int ?();
                         }
@@ -127,9 +119,12 @@ namespace codility.Lib.SmartArray.Tests
                 }
             }
 
+            int? getstm(Pod pod) => pod.MarkSubtree;
+
             var p3 = A.Find(root, getfinder(3));
             var p6 = A.Find(root, getfinder(6));
-            A.MarkRange<int?>(p3, p6, genmark(5), markstm);
+            
+            A.MarkRange<int?>(p3, p6, genmark(5), markstm, getstm);
 
             for (var i = 0; i < ilist.Length; i++)
             {
@@ -148,7 +143,7 @@ namespace codility.Lib.SmartArray.Tests
 
             var p5 = A.Find(root, getfinder(5));
             var p9 = A.Find(root, getfinder(9));
-            A.MarkRange<int?>(p5, p9, genmark(3), markstm);
+            A.MarkRange<int?>(p5, p9, genmark(3), markstm, getstm);
 
             for (var i = 0; i < ilist.Length; i++)
             {

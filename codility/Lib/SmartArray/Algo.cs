@@ -30,7 +30,6 @@ namespace codility.Lib.SmartArray
             LeftAndCenter,
             RightAndCenter,
             CenterAndCheck,
-            CheckAll
         }
 
         public enum MarkStmType
@@ -125,15 +124,15 @@ namespace codility.Lib.SmartArray
         }
 
         public static void MarkRange<TStm>(T left, T right, MarkDelegate<TStm> mark,
-            MarkStmelegate<TStm> markstm)
+            MarkStmelegate<TStm> markstm, Func<T, TStm> getstm)
         {
             var lpl = left.Left;
             var pl = (Node)left;
             var lpr = right.Right;
             var pr = (Node)right;
 
-            var leftStack = new Stack<Node>();
-            var rightStack = new Stack<Node>();
+            var stack = new Stack<Node>();
+            var stack2 = new Stack<Node>();
 
             var leftStmStackIndex = 0;
             TStm leftStm = default(TStm);
@@ -155,13 +154,13 @@ namespace codility.Lib.SmartArray
                     if (!stm.Equals(default(TStm)))
                     {
                         leftStm = stm;
-                        leftStmStackIndex = leftStack.Count;
+                        leftStmStackIndex = stack.Count;
                     }
                 }
                 else
                 {
                     // devil's skin and hair
-                    leftStack.Push(pl);
+                    stack.Push(pl);
                 }
                 lpl = pl;
             };
@@ -181,13 +180,13 @@ namespace codility.Lib.SmartArray
                     if (!stm.Equals(default(TStm)))
                     {
                         rightStm = stm;
-                        rightStmStackIndex = rightStack.Count;
+                        rightStmStackIndex = stack2.Count;
                     }
                 }
                 else
                 {
                     // devil's skin and hair
-                    rightStack.Push(pr);
+                    stack2.Push(pr);
                 }
                 lpr = pr;
             };
@@ -214,16 +213,16 @@ namespace codility.Lib.SmartArray
             {
                 leftStm = rootstm;
                 rightStm = rootstm;
-                leftStmStackIndex = leftStack.Count;
-                rightStmStackIndex = rightStack.Count;
+                leftStmStackIndex = stack.Count;
+                rightStmStackIndex = stack2.Count;
             }
 
             if (!leftStm.Equals(default(TStm)))
             {
-                for (; leftStmStackIndex < leftStack.Count(); leftStack.Pop()) ;
-                for (; leftStack.Count() > 0; )
+                for (; leftStmStackIndex < stack.Count(); stack.Pop()) ;
+                for (; stack.Count() > 0; )
                 {
-                    var n = leftStack.Pop();
+                    var n = stack.Pop();
                     markstm((T)n, leftStm, MarkStmType.LeftStAndCenter);
                 }
                 if (left.Left != null)
@@ -233,10 +232,10 @@ namespace codility.Lib.SmartArray
             }
             if (!rightStm.Equals(default(TStm)))
             {
-                for (; rightStmStackIndex < rightStack.Count(); rightStack.Pop()) ;
-                for (; rightStack.Count() > 0;)
+                for (; rightStmStackIndex < stack2.Count(); stack2.Pop()) ;
+                for (; stack2.Count() > 0;)
                 {
-                    var n = rightStack.Pop();
+                    var n = stack2.Pop();
                     markstm((T)n, rightStm, MarkStmType.RightStAndCenter);
                 }
                 if (right.Right != null)
@@ -245,10 +244,25 @@ namespace codility.Lib.SmartArray
                 }
             }
 
-            for (pl = pl.Parent; pl != null; pl = pl.Parent)
+            Node stmparent = null;
+            TStm stmparentstm = default(TStm);
+            for (var p = pl.Parent; p != null; p = p.Parent)
             {
-                // If only the current and both children are marked then mark the whole subtree
-                mark((T)pl, MarkType.CheckAll);
+                var stm = getstm((T)p);
+                if (!stm.Equals(default(TStm)))
+                {
+                    stmparent = p;
+                    stmparentstm = stm;
+                }
+            }
+            if (stmparent != null)
+            {
+                var lp = pl;
+                for (var p = pl.Parent; p != stmparent; p = p.Parent)
+                {
+                    markstm((T)p, stmparentstm, lp == p.Left ? MarkStmType.RightStAndCenter : MarkStmType.LeftStAndCenter);
+                    lp = p;
+                }
             }
         }
     }

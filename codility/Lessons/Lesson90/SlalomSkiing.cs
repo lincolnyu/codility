@@ -1,5 +1,6 @@
 ﻿#define TEST
-#define DEBUG_PROGRAM
+//#define DEBUG_PROGRAM
+//#define PRINT_PROGRAM
 
 #define NEW_IMPLEMENTATION
 
@@ -124,14 +125,6 @@ namespace codility.Lessons.Lesson90
                             }
                             return stm;
                         }
-                    case Sa.MarkType.CheckAll:
-                        if ((p.Left == null || p.Left.MaxSt[c] == m)
-                            && (p.Right == null || p.Right.MaxSt[c] == m)
-                            && p.Max[c] == m)
-                        {
-                            p.MaxSt[c] = m;
-                        }
-                        break;
                 }
                 return 0;
             };
@@ -163,8 +156,11 @@ namespace codility.Lessons.Lesson90
                 }
             };
 
+        private static Func<Pod, int> GenGetStm(int c)
+            => p => p.MaxSt[c];
+
         private static void Mark(Pod left, Pod right, int c, int m)
-            => Sa.MarkRange<int>(left, right, GenMark(c, m), GenMarkStm(c));
+            => Sa.MarkRange<int>(left, right, GenMark(c, m), GenMarkStm(c), GenGetStm(c));
 
         private static int GetMark(Pod root, int i, int c)
         {
@@ -312,15 +308,13 @@ namespace codility.Lessons.Lesson90
             {
                 var podi = ytopod[i];
                 var pod = pods[podi];
-
-                if (i == 2)
-                {
-                    i = i;
-                }
-
+                
                 var pod0 = i == 0 ? 0 : GetMark(root, podi, 0);
                 var pod1 = i == 0 ? 0 : GetMark(root, podi, 1);
                 var pod2 = i == 0 ? 0 : GetMark(root, podi, 2);
+#if PRINT_PROGRAM
+                Console.WriteLine($"{i}:");
+#endif
 #if DEBUG_PROGRAM
                 SnapShot(out var oldp0, out var oldp1, out var oldp2);
 #endif
@@ -331,12 +325,18 @@ namespace codility.Lessons.Lesson90
                 Mark(pod, pods[end0 - 1], 0, new0);
 #if DEBUG_PROGRAM
                 var cr = CheckMonotonity(0, false);
+#if !PRINT_PROGRAM
                 if (!cr)
+#endif
                 {
+#endif
+#if DEBUG_PROGRAM || PRINT_PROGRAM
+                    Console.WriteLine($" {i} cmp 0 mark {pod.Index} to {end0 - 1} as {new0}:");
                     PrintSnapshot(oldp0);
-                    Console.WriteLine($" 0 mark {pod.Index} to {end0 - 1} as {new0}");
                     Print(0);
-                    System.Diagnostics.Debug.Assert(false);
+#endif
+#if DEBUG_PROGRAM
+                    System.Diagnostics.Debug.Assert(cr);
                 }
 #endif
                 // 1
@@ -345,12 +345,18 @@ namespace codility.Lessons.Lesson90
                 Mark(pods[end1 + 1], pod, 1, new1);
 #if DEBUG_PROGRAM
                 cr = CheckMonotonity(1, true);
+#if !PRINT_PROGRAM
                 if (!cr)
+#endif
                 {
+#endif
+#if DEBUG_PROGRAM || PRINT_PROGRAM
+                    Console.WriteLine($" {i} cmp 1 mark {end1 + 1} to {pod.Index} as {new1}:");
                     PrintSnapshot(oldp1);
-                    Console.WriteLine($" 1 mark {end1 + 1} to {pod.Index} as {new1}");
                     Print(1);
-                    System.Diagnostics.Debug.Assert(false);
+#endif
+#if DEBUG_PROGRAM
+                    System.Diagnostics.Debug.Assert(cr);
                 }
 #endif
                 
@@ -360,12 +366,18 @@ namespace codility.Lessons.Lesson90
                 Mark(pod, pods[end2 - 1], 2, new2);
 #if DEBUG_PROGRAM
                 cr = CheckMonotonity(2, false);
+#if !PRINT_PROGRAM
                 if (!cr)
+#endif
                 {
+#endif
+#if DEBUG_PROGRAM || PRINT_PROGRAM
+                    Console.WriteLine($" {i} cmp 2 mark {pod.Index} to {end2 - 1} as {new2}:");
                     PrintSnapshot(oldp2);
-                    Console.WriteLine($" 2 mark {pod.Index} to {end2 - 1} as {new2}");
                     Print(2);
-                    System.Diagnostics.Debug.Assert(false);
+#endif
+#if DEBUG_PROGRAM
+                    System.Diagnostics.Debug.Assert(cr);
                 }
 #endif
 
@@ -511,6 +523,7 @@ namespace codility.Lessons.Lesson90
         {
             public override IEnumerable<TestSet> GetTestSets()
             {
+                yield return CreateSingleInputSet(new[] { 5, 6, 7, 8, 9, 10, 4, 3, 1, 2 }, 10);
                 yield return CreateSingleInputSet(new[] { 1, 10, 4, 2, 7, 5, 9, 8, 6, 3 }, 7);
                 yield return CreateSingleInputSet(new[] { 15, 13, 5, 7, 4, 10, 12, 8, 2, 11, 6, 9, 3 }, 8);
                 yield return CreateSingleInputSet(new[] { 1, 5 }, 2);
