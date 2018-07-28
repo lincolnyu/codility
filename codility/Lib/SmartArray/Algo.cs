@@ -131,8 +131,8 @@ namespace codility.Lib.SmartArray
             var lpr = right.Right;
             var pr = (Node)right;
 
-            var stack = new Stack<Node>();
-            var stack2 = new Stack<Node>();
+            var leftStack = new Stack<Node>();
+            var rightStack = new Stack<Node>();
 
             var leftStmStackIndex = 0;
             TStm leftStm = default(TStm);
@@ -154,13 +154,13 @@ namespace codility.Lib.SmartArray
                     if (!stm.Equals(default(TStm)))
                     {
                         leftStm = stm;
-                        leftStmStackIndex = stack.Count;
+                        leftStmStackIndex = leftStack.Count;
                     }
                 }
                 else
                 {
                     // devil's skin and hair
-                    stack.Push(pl);
+                    leftStack.Push(pl);
                 }
                 lpl = pl;
             };
@@ -180,13 +180,13 @@ namespace codility.Lib.SmartArray
                     if (!stm.Equals(default(TStm)))
                     {
                         rightStm = stm;
-                        rightStmStackIndex = stack2.Count;
+                        rightStmStackIndex = rightStack.Count;
                     }
                 }
                 else
                 {
                     // devil's skin and hair
-                    stack2.Push(pr);
+                    rightStack.Push(pr);
                 }
                 lpr = pr;
             };
@@ -206,42 +206,16 @@ namespace codility.Lib.SmartArray
                 walkRight();
             }
 
+            // process stm
+
             // Common ancestor
             // Mark the center and if both children are marked then mark the whole subtree
             var rootstm = mark((T)pl, MarkType.CenterAndCheck);
             if (!rootstm.Equals(default(TStm)))
             {
-                leftStm = rootstm;
-                rightStm = rootstm;
-                leftStmStackIndex = stack.Count;
-                rightStmStackIndex = stack2.Count;
-            }
-
-            if (!leftStm.Equals(default(TStm)))
-            {
-                for (; leftStmStackIndex < stack.Count(); stack.Pop()) ;
-                for (; stack.Count() > 0; )
-                {
-                    var n = stack.Pop();
-                    markstm((T)n, leftStm, MarkStmType.LeftStAndCenter);
-                }
-                if (left.Left != null)
-                {
-                    markstm((T)left.Left, leftStm, MarkStmType.CenterStOnly);
-                }
-            }
-            if (!rightStm.Equals(default(TStm)))
-            {
-                for (; rightStmStackIndex < stack2.Count(); stack2.Pop()) ;
-                for (; stack2.Count() > 0;)
-                {
-                    var n = stack2.Pop();
-                    markstm((T)n, rightStm, MarkStmType.RightStAndCenter);
-                }
-                if (right.Right != null)
-                {
-                    markstm((T)right.Right, rightStm, MarkStmType.CenterStOnly);
-                }
+                leftStm = rightStm = rootstm;
+                leftStmStackIndex = leftStack.Count;
+                rightStmStackIndex = rightStack.Count;
             }
 
             Node stmparent = null;
@@ -258,10 +232,40 @@ namespace codility.Lib.SmartArray
             if (stmparent != null)
             {
                 var lp = pl;
-                for (var p = pl.Parent; p != stmparent; p = p.Parent)
+                for (var p = pl.Parent; lp != stmparent; p = p.Parent)
                 {
                     markstm((T)p, stmparentstm, lp == p.Left ? MarkStmType.RightStAndCenter : MarkStmType.LeftStAndCenter);
                     lp = p;
+                }
+                leftStm = rightStm = stmparentstm;
+                leftStmStackIndex = leftStack.Count;
+                rightStmStackIndex = rightStack.Count;
+            }
+
+            if (!leftStm.Equals(default(TStm)))
+            {
+                for (; leftStmStackIndex < leftStack.Count(); leftStack.Pop()) ;
+                for (; leftStack.Count() > 0; )
+                {
+                    var n = leftStack.Pop();
+                    markstm((T)n, leftStm, MarkStmType.LeftStAndCenter);
+                }
+                if (left.Left != null)
+                {
+                    markstm((T)left.Left, leftStm, MarkStmType.CenterStOnly);
+                }
+            }
+            if (!rightStm.Equals(default(TStm)))
+            {
+                for (; rightStmStackIndex < rightStack.Count(); rightStack.Pop()) ;
+                for (; rightStack.Count() > 0;)
+                {
+                    var n = rightStack.Pop();
+                    markstm((T)n, rightStm, MarkStmType.RightStAndCenter);
+                }
+                if (right.Right != null)
+                {
+                    markstm((T)right.Right, rightStm, MarkStmType.CenterStOnly);
                 }
             }
         }

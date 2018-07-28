@@ -308,7 +308,7 @@ namespace codility.Lessons.Lesson90
             {
                 var podi = ytopod[i];
                 var pod = pods[podi];
-                
+
                 var pod0 = i == 0 ? 0 : GetMark(root, podi, 0);
                 var pod1 = i == 0 ? 0 : GetMark(root, podi, 1);
                 var pod2 = i == 0 ? 0 : GetMark(root, podi, 2);
@@ -318,7 +318,7 @@ namespace codility.Lessons.Lesson90
 #if DEBUG_PROGRAM
                 SnapShot(out var oldp0, out var oldp1, out var oldp2);
 #endif
-             
+
                 // 0
                 var new0 = pod0 + 1;
                 var end0 = i == 0 ? N : FindFirstNoLess(root, new0, 0, false, N);
