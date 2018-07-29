@@ -3,6 +3,8 @@
 //#define DEBUG_PROGRAM
 //#define PRINT_PROGRAM
 
+#define IMPLEMENTATION2
+
 using System.Linq;
 using System;
 using System.Collections.Generic;
@@ -15,7 +17,9 @@ using codility.TestFramework;
 
 namespace codility.Lessons.Lesson90
 {
+#if !IMPLEMENTATION2
     using Sa = Algo<SlalomSkiing.Pod>;
+#endif
 
     class SlalomSkiing : ITestee
 #else
@@ -26,6 +30,15 @@ namespace codility.Lessons.Lesson90
     class Solution
 #endif
     {
+#if IMPLEMENTATION2
+
+        public int solution(int[] A)
+        {
+            throw new NotImplementedException();
+        }
+
+#else
+
         public class Pod : Node<Pod>, IComparable<Pod>
         {
             public int XPos;
@@ -447,6 +460,7 @@ namespace codility.Lessons.Lesson90
 #endif
             return Math.Max(Math.Max(max0, max1), max2);
         }
+#endif
 
         class RefSolution
         {
