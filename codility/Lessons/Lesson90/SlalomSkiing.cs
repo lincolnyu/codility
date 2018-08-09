@@ -32,9 +32,137 @@ namespace codility.Lessons.Lesson90
     {
 #if IMPLEMENTATION2
 
+        class Range : IComparable<Range>
+        {
+            public int Start;
+            public int End; // inclusive
+
+            public int CompareTo(Range other)
+            {
+                if (End < other.Start) return -1;
+                if (Start > other.End) return 1;
+                return 0;
+            }
+        }
+
+        class RevComparer : IComparer<Range>
+        {
+            public int Compare(Range x, Range y)
+                => -x.CompareTo(y);
+            public readonly static RevComparer Instance = new RevComparer();
+        }
+
+        class StepBuffer
+        {
+            public Range[] Steps;
+            public int Low;
+            public int Len;
+            public int Min; // inclusive
+            public int Max; // inclusive
+            public bool Rev;
+
+            public StepBuffer(int n, int min, int max, bool rev = false)
+            {
+                Min = min;
+                Max = max;
+                Steps = new Range[n + 1];
+                Steps[0] = new Range { Start = min, End = max };
+                Low = 0;
+                Len = 1;
+                Rev = rev;
+            }
+
+            public int High => Low + Len - 1;
+
+            public void Inc(int pos)
+            {
+                var q = new Range { Start = pos, End = pos };
+                if (!Rev)
+                {
+                    var index = Array.BinarySearch(Steps, Low, Len, q);
+                    Steps[index].End = pos - 1;
+                    if (index + 1 < Low + Len)
+                    {
+                        Steps[index + 1].Start = pos;
+                    }
+                    else
+                    {
+                        Steps[index + 1] = new Range { Start = pos, End = Max };
+                        Len = index + 2 - Low;
+                    }
+                }
+                else
+                {
+                    var index = Array.BinarySearch(Steps, Low, Len, q, RevComparer.Instance);
+                    Steps[index].Start = pos + 1;
+                    if (index + 1 < Low + Len)
+                    {
+                        Steps[index + 1].End = pos;
+                    }
+                    else
+                    {
+                        Steps[index + 1] = new Range { Start = Min, End = pos };
+                        Len = index + 2 - Low;
+                    }
+                }
+            }
+            
+            public void RaiseBar(int level)
+            {
+                if (level >= Low + Len)
+                {
+                    Len = 1;
+                    Steps[level] = new Range { Start = Min, End = Max };
+                }
+                else if (level > Low)
+                {
+                    if (!Rev)
+                    {
+                        Steps[level].Start = Min;
+                    }
+                    else
+                    {
+                        Steps[level].End = Max;
+                    }
+                    Len -= level - Low;
+                }
+                Low = level;
+            }
+        }
+        
         public int solution(int[] A)
         {
-            throw new NotImplementedException();
+            var N = A.Length;
+            var min = A[0];
+            var max = A[0];
+            for (var i = 1; i < N; i++)
+            {
+                if (A[i] < min)
+                {
+                    min = A[i];
+                }
+                else if (A[i] > max)
+                {
+                    max = A[i];
+                }
+            }
+            var l1buf = new StepBuffer(N, min, max); //  \
+            var l2buf = new StepBuffer(N, min, max, true); //  \ and /
+            var l3buf = new StepBuffer(N, min, max); //  \, / and \ 
+            var l2bar = 0;
+            var l3bar = 0;
+            for (var i = 0; i < N; i++)
+            {
+                var a = A[i];
+                l1buf.Inc(a);
+                l2bar = l1buf.High;
+                l2buf.Inc(a);
+                l2buf.RaiseBar(l2bar);
+                l3bar = l2buf.High;
+                l3buf.Inc(a);
+                l3buf.RaiseBar(l3bar);
+            }
+            return Math.Max(Math.Max(l2bar, l3bar), l3buf.High);
         }
 
 #else
